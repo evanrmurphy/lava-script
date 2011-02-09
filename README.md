@@ -6,6 +6,23 @@ A lispy language that compiles into JavaScript.
 
 In the examples below, LS on the left, JS on the right.
 
+### Numbers
+
+    1                          1
+    42                         42
+    3.14159265                 3.14159265
+
+### Strings
+
+    "a"                        "a"
+    "do re mi"                 "do re mi"
+
+(Strings are always double-quoted, because single-quotes are reserved for `quote`ed symbols.)
+
+### Assignment
+
+    (= meaning 42)             meaning = 42;
+
 ### Arrays
 
     (= a [1 2 3])              a = [1, 2, 3];
@@ -34,6 +51,22 @@ In the examples below, LS on the left, JS on the right.
     (add1 5)                   add1(5);
 
     (def add2 (x) (+ x 2))     add2 = function(x) { return x + 2; };
+
+### Chaining
+
+    (chain ($ "a") click       $("a").click(function() {
+      (fn ()                     return alert("clicked");
+        (alert "clicked")))    })();
+
+### Macros
+
+    (mac $ (selector . args)
+      `(chain (jQuery ,selector) ,@args))
+
+    ($ "a" click               jQuery("a").click(function() {
+      (fn ()                     return alert("clicked");
+        (alert "clicked"))     })();
+
 
 
   

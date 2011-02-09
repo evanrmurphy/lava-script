@@ -63,9 +63,9 @@ LS on the left, JS on the right in the examples below.
     (mac $ (selector . args)
       `(chain (jQuery ,selector) ,@args))
 
-    ($ "a" click               jQuery("a").click(function() {
-      (fn ()                     return alert("clicked");
-        (alert "clicked"))     })();
+    ($ "a" click (fn ()        jQuery("a").click(function() {
+      (alert "clicked"))         return alert("clicked");
+                               })();
 
 
 

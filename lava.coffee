@@ -1,5 +1,7 @@
 ### About this code:
-### - No code depends on code below it
+### - No code depends on code below it (see
+###   http://awwx.posterous.com/how-to-future-proof-your-code
+###   for a compelling post on the idea)
 ### - Unit tests are inline, i.e. functions
 ###   are tested immediately after they're
 ###   defined

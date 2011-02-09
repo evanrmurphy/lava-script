@@ -2,6 +2,10 @@
 
 A lispy language that compiles into JavaScript.
 
+## The code
+
+See [lava.coffee](https://github.com/evanrmurphy/lava-script/blob/master/lava.coffee).
+
 ## The language
 
 LS on the left, JS on the right in the examples below.

@@ -6,6 +6,14 @@ A lispy language that compiles into JavaScript.
 
 See [lava.coffee](https://github.com/evanrmurphy/lava-script/blob/master/lava.coffee).
 
+## Todo
+
+- the rest of the compiler core (lc)
+- the reader (consider using the reader from [Lispy](http://norvig.com/lispy2.html) as a guide)
+- macro system
+- pretty-printed output
+- npm packaging
+
 ## The language
 
 LS on the left, JS on the right in the examples below.

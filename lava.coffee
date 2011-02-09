@@ -89,9 +89,14 @@ lcInfix = (op, xs) ->
     ""
   else "#{ car(xs) }#{ lcInfix1 op, cdr(xs) }"
 
+infixOps = ['+','-','*','/','%',
+            '>=','<=','>','<','==','===','!=','!==',
+            '=','+=','-=','*=','/=','%=',
+            '&&','||']
+
 orig = lc
 lc = (s) ->
-  if car(s) in ['+', '-', '*', '/']
+  if car(s) in infixOps
     lcInfix(car(s), cdr(s))
   else orig(s)
 
@@ -99,5 +104,24 @@ test('lc #4', lc(list('+', 1, 2)), "1+2")
 test('lc #5', lc(list('+', 1, 2, 3)), "1+2+3")
 test('lc #6', lc(list('-', 1, 2)), "1-2")
 test('lc #7', lc(list('*', 1, 2)), "1*2")
-test('lc #8', lc(list('/', 1, 2)), "1/2")
+test('lc #8', lc(list('%', 1, 2)), "1%2")
+
+test('lc #9', lc(list('>=', 1, 2)), "1>=2")
+test('lc #10', lc(list('<=', 1, 2)), "1<=2")
+test('lc #11', lc(list('>', 1, 2)), "1>2")
+test('lc #12', lc(list('<', 1, 2)), "1<2")
+test('lc #13', lc(list('==', 1, 2)), "1==2")
+test('lc #14', lc(list('===', 1, 2)), "1===2")
+test('lc #15', lc(list('!=', 1, 2)), "1!=2")
+test('lc #16', lc(list('!==', 1, 2)), "1!==2")
+
+test('lc #17', lc(list('=', 'x', 1)), "x=1")
+test('lc #18', lc(list('+=', 'x', 1)), "x+=1")
+test('lc #19', lc(list('-=', 'x', 1)), "x-=1")
+test('lc #20', lc(list('*=', 'x', 1)), "x*=1")
+test('lc #21', lc(list('/=', 'x', 1)), "x/=1")
+test('lc #22', lc(list('%=', 'x', 1)), "x%=1")
+
+test('lc #23', lc(list('&&', 1, 2)), "1&&2")
+test('lc #24', lc(list('||', 1, 2)), "1||2")
 

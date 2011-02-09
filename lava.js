@@ -1,5 +1,10 @@
-var acons, arraylist, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, lc, lcInfix, lcInfix1, len, list, nil, orig, pr, t, test, _;
-var __slice = Array.prototype.slice;
+var acons, arraylist, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, infixOps, lc, lcInfix, lcInfix1, len, list, nil, orig, pr, t, test, _;
+var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
+  for (var i = 0, l = this.length; i < l; i++) {
+    if (this[i] === item) return i;
+  }
+  return -1;
+};
 _ = require('underscore');
 pr = function() {
   var args;
@@ -132,10 +137,11 @@ lcInfix = function(op, xs) {
     return "" + (car(xs)) + (lcInfix1(op, cdr(xs)));
   }
 };
+infixOps = ['+', '-', '*', '/', '%', '>=', '<=', '>', '<', '==', '===', '!=', '!==', '=', '+=', '-=', '*=', '/=', '%=', '&&', '||'];
 orig = lc;
 lc = function(s) {
   var _ref;
-  if ((_ref = car(s)) === '+' || _ref === '-' || _ref === '*' || _ref === '/') {
+  if (_ref = car(s), __indexOf.call(infixOps, _ref) >= 0) {
     return lcInfix(car(s), cdr(s));
   } else {
     return orig(s);
@@ -145,4 +151,20 @@ test('lc #4', lc(list('+', 1, 2)), "1+2");
 test('lc #5', lc(list('+', 1, 2, 3)), "1+2+3");
 test('lc #6', lc(list('-', 1, 2)), "1-2");
 test('lc #7', lc(list('*', 1, 2)), "1*2");
-test('lc #8', lc(list('/', 1, 2)), "1/2");
+test('lc #8', lc(list('%', 1, 2)), "1%2");
+test('lc #9', lc(list('>=', 1, 2)), "1>=2");
+test('lc #10', lc(list('<=', 1, 2)), "1<=2");
+test('lc #11', lc(list('>', 1, 2)), "1>2");
+test('lc #12', lc(list('<', 1, 2)), "1<2");
+test('lc #13', lc(list('==', 1, 2)), "1==2");
+test('lc #14', lc(list('===', 1, 2)), "1===2");
+test('lc #15', lc(list('!=', 1, 2)), "1!=2");
+test('lc #16', lc(list('!==', 1, 2)), "1!==2");
+test('lc #17', lc(list('=', 'x', 1)), "x=1");
+test('lc #18', lc(list('+=', 'x', 1)), "x+=1");
+test('lc #19', lc(list('-=', 'x', 1)), "x-=1");
+test('lc #20', lc(list('*=', 'x', 1)), "x*=1");
+test('lc #21', lc(list('/=', 'x', 1)), "x/=1");
+test('lc #22', lc(list('%=', 'x', 1)), "x%=1");
+test('lc #23', lc(list('&&', 1, 2)), "1&&2");
+test('lc #24', lc(list('||', 1, 2)), "1||2");

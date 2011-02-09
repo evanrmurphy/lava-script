@@ -1,4 +1,4 @@
-var acons, arraylist, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, len, list, nil, pr, t, test, _;
+var acons, arraylist, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, lc, lcInfix, lcInfix1, len, list, nil, orig, pr, t, test, _;
 var __slice = Array.prototype.slice;
 _ = require('underscore');
 pr = function() {
@@ -110,3 +110,39 @@ list = function() {
 test('list #1', list(), nil);
 test('list #2', list(1), cons(1, nil));
 test('list #3', list(1, 2), cons(1, cons(2, nil)));
+lc = function(s) {
+  if (atom(s) !== nil) {
+    return s;
+  }
+};
+test('lc #1', lc(nil), nil);
+test('lc #2', lc(5), 5);
+test('lc #3', lc("abc"), "abc");
+lcInfix1 = function(op, xs) {
+  if (xs === nil) {
+    return "";
+  } else {
+    return "" + op + (car(xs)) + (lcInfix1(op, cdr(xs)));
+  }
+};
+lcInfix = function(op, xs) {
+  if (xs === nil) {
+    return "";
+  } else {
+    return "" + (car(xs)) + (lcInfix1(op, cdr(xs)));
+  }
+};
+orig = lc;
+lc = function(s) {
+  var _ref;
+  if ((_ref = car(s)) === '+' || _ref === '-' || _ref === '*' || _ref === '/') {
+    return lcInfix(car(s), cdr(s));
+  } else {
+    return orig(s);
+  }
+};
+test('lc #4', lc(list('+', 1, 2)), "1+2");
+test('lc #5', lc(list('+', 1, 2, 3)), "1+2+3");
+test('lc #6', lc(list('-', 1, 2)), "1-2");
+test('lc #7', lc(list('*', 1, 2)), "1*2");
+test('lc #8', lc(list('/', 1, 2)), "1/2");

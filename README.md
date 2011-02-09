@@ -4,7 +4,7 @@ A lispy language that compiles into JavaScript.
 
 ## The language
 
-In the examples below, LS on the left, JS on the right.
+LS on the left, JS on the right in the examples below.
 
 ### Numbers
 

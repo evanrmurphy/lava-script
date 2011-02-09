@@ -1,9 +1,14 @@
-var arraylist, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, len, list, nil, t, test, _;
+var acons, arraylist, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, len, list, nil, pr, t, test, _;
 var __slice = Array.prototype.slice;
 _ = require('underscore');
+pr = function() {
+  var args;
+  args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+  return console.log.apply(console, args);
+};
 test = function(name, x, expected) {
   if (!_(x).isEqual(expected)) {
-    return console.log("" + name + " test failed");
+    return pr("" + name + " test failed");
   }
 };
 t = 't';
@@ -56,6 +61,24 @@ cddar = function(xs) {
 cdddr = function(xs) {
   return cdr(cdr(cdr(xs)));
 };
+acons = function(x) {
+  if (_.isArray(x)) {
+    return t;
+  } else {
+    return nil;
+  }
+};
+test('acons #1', acons(nil), nil);
+test('acons #2', acons(cons(1, nil)), t);
+atom = function(x) {
+  if (acons(x) === nil) {
+    return t;
+  } else {
+    return nil;
+  }
+};
+test('atom #1', atom(nil), t);
+test('atom #2', atom(cons(1, nil)), nil);
 len = function(xs) {
   if (xs === nil) {
     return 0;

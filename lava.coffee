@@ -1,8 +1,10 @@
 _ = require('underscore');
 
+pr = (args...) -> console.log args...
+
 test = (name, x, expected) ->
   unless _(x).isEqual(expected)
-    console.log "#{name} test failed"
+    pr "#{name} test failed"
 
 t = 't'
 nil = 'nil'
@@ -29,6 +31,14 @@ cdaar = (xs) -> cdr(car(car(xs)))
 cdadr = (xs) -> cdr(car(cdr(xs)))
 cddar = (xs) -> cdr(cdr(car(xs)))
 cdddr = (xs) -> cdr(cdr(cdr(xs)))
+
+acons = (x) -> if _.isArray(x) then t else nil
+test('acons #1', acons(nil), nil)
+test('acons #2', acons(cons(1, nil)), t)
+
+atom = (x) ->  if acons(x) is nil then t else nil
+test('atom #1', atom(nil), t)
+test('atom #2', atom(cons(1, nil)), nil)
 
 len = (xs) ->
   if xs is nil then 0 else 1 + len(cdr(xs))

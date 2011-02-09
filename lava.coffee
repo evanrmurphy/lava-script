@@ -1,10 +1,25 @@
+### About this code:
+### - No code depends on code below it
+### - Unit tests are inline, i.e. functions
+###   are tested immediately after they're
+###   defined
+### - It's organized into 3 sections: 1) Preliminary,
+###   2) Lisp primitives, 3) The Compiler
+
+## Preliminary
+
+# depends on underscore.js
 _ = require('underscore');
 
+# pr is just a convenience alias for console.log
 pr = (args...) -> console.log args...
 
+# simple unit testing utility
 test = (name, x, expected) ->
   unless _(x).isEqual(expected)
     pr "#{name} test failed"
+
+## Lisp primitives
 
 t = 't'
 nil = 'nil'
@@ -71,13 +86,26 @@ test('list #1', list(), nil)
 test('list #2', list(1), cons(1, nil))
 test('list #3', list(1, 2), cons(1, cons(2, nil)))
 
-# the compiler
+## The Compiler (lc)
+
+# lc is built up iteratively here, one
+# conditional at a time. lc is defined
+# with a single conditional, tested, and
+# then redefined with a second conditional.
+# Each redefinition extends upon the previous
+# definition, essentially by hand-generating
+# the macro-expansion of the arc macro,
+# extend (http://awwx.ws/extend).
+
+# lc atom
 
 lc = (s) -> if atom(s) isnt nil then s
 
 test('lc #1', lc(nil), nil)
 test('lc #2', lc(5), 5)
 test('lc #3', lc("abc"), "abc")
+
+# lc infix
 
 lcInfix1 = (op, xs) ->
   if xs is nil
@@ -100,28 +128,29 @@ lc = (s) ->
     lcInfix(car(s), cdr(s))
   else orig(s)
 
-test('lc #4', lc(list('+', 1, 2)), "1+2")
-test('lc #5', lc(list('+', 1, 2, 3)), "1+2+3")
-test('lc #6', lc(list('-', 1, 2)), "1-2")
-test('lc #7', lc(list('*', 1, 2)), "1*2")
-test('lc #8', lc(list('%', 1, 2)), "1%2")
+test('lc #4', lc(list('+', 'x', 'y')), "x+y")
+test('lc #5', lc(list('+', 'x', 'y', 'z')), "x+y+z")
+test('lc #6', lc(list('-', 'x', 'y')), "x-y")
+test('lc #7', lc(list('*', 'x', 'y')), "x*y")
+test('lc #8', lc(list('%', 'x', 'y')), "x%y")
 
-test('lc #9', lc(list('>=', 1, 2)), "1>=2")
-test('lc #10', lc(list('<=', 1, 2)), "1<=2")
-test('lc #11', lc(list('>', 1, 2)), "1>2")
-test('lc #12', lc(list('<', 1, 2)), "1<2")
-test('lc #13', lc(list('==', 1, 2)), "1==2")
-test('lc #14', lc(list('===', 1, 2)), "1===2")
-test('lc #15', lc(list('!=', 1, 2)), "1!=2")
-test('lc #16', lc(list('!==', 1, 2)), "1!==2")
+test('lc #9', lc(list('>=', 'x', 'y')), "x>=y")
+test('lc #10', lc(list('<=', 'x', 'y')), "x<=y")
+test('lc #11', lc(list('>', 'x', 'y')), "x>y")
+test('lc #12', lc(list('<', 'x', 'y')), "x<y")
+test('lc #13', lc(list('==', 'x', 'y')), "x==y")
+test('lc #14', lc(list('===', 'x', 'y')), "x===y")
+test('lc #15', lc(list('!=', 'x', 'y')), "x!=y")
+test('lc #16', lc(list('!==', 'x', 'y')), "x!==y")
 
-test('lc #17', lc(list('=', 'x', 1)), "x=1")
-test('lc #18', lc(list('+=', 'x', 1)), "x+=1")
-test('lc #19', lc(list('-=', 'x', 1)), "x-=1")
-test('lc #20', lc(list('*=', 'x', 1)), "x*=1")
-test('lc #21', lc(list('/=', 'x', 1)), "x/=1")
-test('lc #22', lc(list('%=', 'x', 1)), "x%=1")
+test('lc #17', lc(list('=', 'x', 'y')), "x=y")
+test('lc #18', lc(list('+=', 'x', 'y')), "x+=y")
+test('lc #19', lc(list('-=', 'x', 'y')), "x-=y")
+test('lc #20', lc(list('*=', 'x', 'y')), "x*=y")
+test('lc #21', lc(list('/=', 'x', 'y')), "x/=y")
+test('lc #22', lc(list('%=', 'x', 'y')), "x%=y")
 
-test('lc #23', lc(list('&&', 1, 2)), "1&&2")
-test('lc #24', lc(list('||', 1, 2)), "1||2")
+test('lc #23', lc(list('&&', 'x', 'y')), "x&&y")
+test('lc #24', lc(list('||', 'x', 'y')), "x||y")
 
+# more lc cases...

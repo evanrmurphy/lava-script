@@ -104,21 +104,21 @@ test('list #3', list(1, 2), cons(1, cons(2, nil)))
 
 lc = (s) -> if atom(s) isnt nil then s
 
-test('lc #1', lc(nil), nil)
-test('lc #2', lc(5), 5)
-test('lc #3', lc("abc"), "abc")
+test('lc atom #1', lc(nil), nil)
+test('lc atom #2', lc(5), 5)
+test('lc atom #3', lc("abc"), "abc")
 
 # lc infix
 
 lcInfix1 = (op, xs) ->
   if xs is nil
     ""
-  else "#{ op }#{ car(xs) }#{ lcInfix1 op, cdr(xs) }"
+  else op + car(xs) + lcInfix1(op, cdr(xs))
 
 lcInfix = (op, xs) ->
   if xs is nil
     ""
-  else "#{ car(xs) }#{ lcInfix1 op, cdr(xs) }"
+  else car(xs) + lcInfix1(op, cdr(xs))
 
 infixOps = ['+','-','*','/','%',
             '>=','<=','>','<','==','===','!=','!==',
@@ -131,30 +131,30 @@ lc = (s) ->
     lcInfix(car(s), cdr(s))
   else orig(s)
 
-test('lc #4', lc(list('+', 'x', 'y')), "x+y")
-test('lc #5', lc(list('+', 'x', 'y', 'z')), "x+y+z")
-test('lc #6', lc(list('-', 'x', 'y')), "x-y")
-test('lc #7', lc(list('*', 'x', 'y')), "x*y")
-test('lc #8', lc(list('%', 'x', 'y')), "x%y")
+test('lc infix #1', lc(list('+', 'x', 'y')), "x+y")
+test('lc infix #2', lc(list('+', 'x', 'y', 'z')), "x+y+z")
+test('lc infix #3', lc(list('-', 'x', 'y')), "x-y")
+test('lc infix #4', lc(list('*', 'x', 'y')), "x*y")
+test('lc infix #5', lc(list('%', 'x', 'y')), "x%y")
 
-test('lc #9', lc(list('>=', 'x', 'y')), "x>=y")
-test('lc #10', lc(list('<=', 'x', 'y')), "x<=y")
-test('lc #11', lc(list('>', 'x', 'y')), "x>y")
-test('lc #12', lc(list('<', 'x', 'y')), "x<y")
-test('lc #13', lc(list('==', 'x', 'y')), "x==y")
-test('lc #14', lc(list('===', 'x', 'y')), "x===y")
-test('lc #15', lc(list('!=', 'x', 'y')), "x!=y")
-test('lc #16', lc(list('!==', 'x', 'y')), "x!==y")
+test('lc infix #6', lc(list('>=', 'x', 'y')), "x>=y")
+test('lc infix #7', lc(list('<=', 'x', 'y')), "x<=y")
+test('lc infix #8', lc(list('>', 'x', 'y')), "x>y")
+test('lc infix #9', lc(list('<', 'x', 'y')), "x<y")
+test('lc infix #10', lc(list('==', 'x', 'y')), "x==y")
+test('lc infix #11', lc(list('===', 'x', 'y')), "x===y")
+test('lc infix #12', lc(list('!=', 'x', 'y')), "x!=y")
+test('lc infix #13', lc(list('!==', 'x', 'y')), "x!==y")
 
-test('lc #17', lc(list('=', 'x', 'y')), "x=y")
-test('lc #18', lc(list('+=', 'x', 'y')), "x+=y")
-test('lc #19', lc(list('-=', 'x', 'y')), "x-=y")
-test('lc #20', lc(list('*=', 'x', 'y')), "x*=y")
-test('lc #21', lc(list('/=', 'x', 'y')), "x/=y")
-test('lc #22', lc(list('%=', 'x', 'y')), "x%=y")
+test('lc infix #14', lc(list('=', 'x', 'y')), "x=y")
+test('lc infix #15', lc(list('+=', 'x', 'y')), "x+=y")
+test('lc infix #16', lc(list('-=', 'x', 'y')), "x-=y")
+test('lc infix #17', lc(list('*=', 'x', 'y')), "x*=y")
+test('lc infix #18', lc(list('/=', 'x', 'y')), "x/=y")
+test('lc infix #19', lc(list('%=', 'x', 'y')), "x%=y")
 
-test('lc #23', lc(list('&&', 'x', 'y')), "x&&y")
-test('lc #24', lc(list('||', 'x', 'y')), "x||y")
+test('lc infix #20', lc(list('&&', 'x', 'y')), "x&&y")
+test('lc infix #21', lc(list('||', 'x', 'y')), "x||y")
 
 lcObj2 = (xs) ->
   if xs is nil

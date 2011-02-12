@@ -7,7 +7,7 @@
 ###   defined
 ### - It's organized into 3 sections: 1) Preliminary,
 ###   2) Lisp primitives, 3) The Compiler
-*/var acons, arraylist, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, infixOps, lc, lcArray, lcArray1, lcArray2, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, len, list, nil, orig, pr, t, test, _;
+*/var acons, arraylist, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, infixOps, lc, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcProc, lcProc1, lcProc2, len, list, nil, orig, pr, t, test, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -132,27 +132,62 @@ lc = function(s) {
 test('lc atom #1', lc(nil), nil);
 test('lc atom #2', lc(5), 5);
 test('lc atom #3', lc("abc"), "abc");
+lcProc2 = function(xs) {
+  if (xs === nil) {
+    return "";
+  } else {
+    return ',' + lc(car(xs)) + lcProc2(cdr(xs));
+  }
+};
+lcProc1 = function(xs) {
+  if (xs === nil) {
+    return "";
+  } else {
+    return lc(car(xs)) + lcProc2(cdr(xs));
+  }
+};
+lcProc = function(f, args) {
+  return lc(f) + '(' + lcProc1(args) + ')';
+};
+orig = lc;
+lc = function(s) {
+  if (acons(s) !== nil) {
+    return lcProc(car(s), cdr(s));
+  } else {
+    return orig(s);
+  }
+};
+test('lc proc #1', lc(list('foo')), 'foo()');
+test('lc proc #2', lc(list('foo', 'x')), 'foo(x)');
+test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)');
+test('lc atom #1 2', lc(nil), nil);
+test('lc atom #2 2', lc(5), 5);
+test('lc atom #3 2', lc("abc"), "abc");
 lcInfix1 = function(op, xs) {
   if (xs === nil) {
     return "";
   } else {
-    return op + lc(car(xs)) + lcInfix1(op, cdr(xs));
+    return op + car(xs) + lcInfix1(op, cdr(xs));
   }
 };
 lcInfix = function(op, xs) {
   if (xs === nil) {
     return "";
   } else {
-    return lc(car(xs)) + lcInfix1(op, cdr(xs));
+    return car(xs) + lcInfix1(op, cdr(xs));
   }
 };
 infixOps = ['+', '-', '*', '/', '%', '>=', '<=', '>', '<', '==', '===', '!=', '!==', '=', '+=', '-=', '*=', '/=', '%=', '&&', '||'];
 orig = lc;
 lc = function(s) {
   var _ref;
-  if (acons(s) && (_ref = car(s), __indexOf.call(infixOps, _ref) >= 0)) {
-    return lcInfix(car(s), cdr(s));
+  if (acons(s) !== nil) {
+    pr('lc (infix) acons isnt nil');
+    if (_ref = car(s), __indexOf.call(infixOps, _ref) >= 0) {
+      return lcInfix(car(s), cdr(s));
+    }
   } else {
+    pr('lc (infix) else');
     return orig(s);
   }
 };
@@ -177,6 +212,7 @@ test('lc infix #18', lc(list('/=', 'x', 'y')), "x/=y");
 test('lc infix #19', lc(list('%=', 'x', 'y')), "x%=y");
 test('lc infix #20', lc(list('&&', 'x', 'y')), "x&&y");
 test('lc infix #21', lc(list('||', 'x', 'y')), "x||y");
+test('lc atom #1 3', lc(nil), nil);
 lcObj2 = function(xs) {
   if (xs === nil) {
     return "";
@@ -196,7 +232,7 @@ lcObj = function(xs) {
 };
 orig = lc;
 lc = function(s) {
-  if (acons(s) && car(s) === 'obj') {
+  if ((acons(s) !== nil) && (car(s) === 'obj')) {
     return lcObj(cdr(s));
   } else {
     return orig(s);
@@ -206,32 +242,3 @@ test('lc obj #1', lc(list('obj')), "{}");
 test('lc obj #2', lc(list('obj', 'x', 'y')), "{x:y}");
 test('lc obj #3', lc(list('obj', 'x', 'y', 'z', 'a')), "{x:y,z:a}");
 test('lc obj #4', lc(list('obj', 'x', 'y', 'z', list('+', 'x', 'y'))), "{x:y,z:x+y}");
-lcArray2 = function(xs) {
-  if (xs === nil) {
-    return "";
-  } else {
-    return ',' + car(xs) + lcArray2(cdr(xs));
-  }
-};
-lcArray1 = function(xs) {
-  if (xs === nil) {
-    return "";
-  } else {
-    return car(xs) + lcArray2(cdr(xs));
-  }
-};
-lcArray = function(xs) {
-  return '[' + lcArray1(xs) + ']';
-};
-orig = lc;
-lc = function(s) {
-  if (acons(s) && car(s) === 'array') {
-    return lcArray(cdr(s));
-  } else {
-    return orig(s);
-  }
-};
-test('lc array #1', lc(list('array')), "[]");
-test('lc array #2', lc(list('array', 'x')), "[x]");
-test('lc array #3', lc(list('array', 'x', 'y')), "[x,y]");
-test('lc array #4', lc(list('array', 'x', list('array', 'y'))), "[x,[y]]");

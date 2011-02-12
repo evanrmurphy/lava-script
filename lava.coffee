@@ -102,23 +102,53 @@ test('list #3', list(1, 2), cons(1, cons(2, nil)))
 
 # lc atom
 
-lc = (s) -> if atom(s) isnt nil then s
+lc = (s) ->
+  if atom(s) isnt nil then s
 
 test('lc atom #1', lc(nil), nil)
 test('lc atom #2', lc(5), 5)
 test('lc atom #3', lc("abc"), "abc")
+
+# lc proc
+
+lcProc2 = (xs) ->
+  if xs is nil
+    ""
+  else ',' + lc(car(xs)) + lcProc2(cdr(xs))
+
+lcProc1 = (xs) ->
+  if xs is nil
+    ""
+  else lc(car(xs)) + lcProc2(cdr(xs))
+
+lcProc = (f, args) ->
+  lc(f) + '(' + lcProc1(args) + ')'
+
+orig = lc
+lc = (s) ->
+  if acons(s) isnt nil
+    lcProc(car(s), cdr(s))
+  else orig(s)
+
+test('lc proc #1', lc(list('foo')), 'foo()')
+test('lc proc #2', lc(list('foo', 'x')), 'foo(x)')
+test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)')
+
+test('lc atom #1 2', lc(nil), nil)
+test('lc atom #2 2', lc(5), 5)
+test('lc atom #3 2', lc("abc"), "abc")
 
 # lc infix
 
 lcInfix1 = (op, xs) ->
   if xs is nil
     ""
-  else op + lc(car(xs)) + lcInfix1(op, cdr(xs))
+  else op + car(xs) + lcInfix1(op, cdr(xs))
 
 lcInfix = (op, xs) ->
   if xs is nil
     ""
-  else lc(car(xs)) + lcInfix1(op, cdr(xs))
+  else car(xs) + lcInfix1(op, cdr(xs))
 
 infixOps = ['+','-','*','/','%',
             '>=','<=','>','<','==','===','!=','!==',
@@ -127,9 +157,13 @@ infixOps = ['+','-','*','/','%',
 
 orig = lc
 lc = (s) ->
-  if acons(s) and car(s) in infixOps
-    lcInfix(car(s), cdr(s))
-  else orig(s)
+  if acons(s) isnt nil
+    pr 'lc (infix) acons isnt nil'
+    if car(s) in infixOps
+      lcInfix(car(s), cdr(s))
+  else
+    pr 'lc (infix) else'
+    orig(s)
 
 test('lc infix #1', lc(list('+', 'x', 'y')), "x+y")
 test('lc infix #2', lc(list('+', 'x', 'y', 'z')), "x+y+z")
@@ -156,12 +190,20 @@ test('lc infix #19', lc(list('%=', 'x', 'y')), "x%=y")
 test('lc infix #20', lc(list('&&', 'x', 'y')), "x&&y")
 test('lc infix #21', lc(list('||', 'x', 'y')), "x||y")
 
+test('lc atom #1 3', lc(nil), nil)
+# test('lc atom #2 3', lc(5), 5)
+# test('lc atom #3 3', lc("abc"), "abc")
+
 # lc obj
 
 lcObj2 = (xs) ->
+  # pr 'lcObj2'
+  # pr 'xs = ', xs
   if xs is nil
     ""
-  else ',' + car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs))
+  else
+    # pr 'car(xs) = ', car(xs)
+    ',' + car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs))
 
 lcObj1 = (xs) ->
   if xs is nil
@@ -173,37 +215,42 @@ lcObj = (xs) ->
 
 orig = lc
 lc = (s) ->
-  if acons(s) and car(s) is 'obj'
+  if (acons(s) isnt nil) and (car(s) is 'obj')
     lcObj(cdr(s))
   else orig(s)
+
+# pr 'lc(1) = ', lc(1)
+# pr 'lc("x") = ', lc('x')
+# pr 'acons(1) = ', acons(1)
+# pr 'atom(1) = ', atom(1)
 
 test('lc obj #1', lc(list('obj')), "{}")
 test('lc obj #2', lc(list('obj', 'x', 'y')), "{x:y}")
 test('lc obj #3', lc(list('obj', 'x', 'y', 'z', 'a')), "{x:y,z:a}")
 test('lc obj #4', lc(list('obj', 'x', 'y', 'z', list('+', 'x', 'y'))), "{x:y,z:x+y}")
 
-# lc array
-
-lcArray2 = (xs) ->
-  if xs is nil
-    ""
-  else ',' + car(xs) + lcArray2(cdr(xs))
-
-lcArray1 = (xs) ->
-  if xs is nil
-    ""
-  else car(xs) + lcArray2(cdr(xs))
-
-lcArray = (xs) ->
-  '[' + lcArray1(xs) + ']'
-
-orig = lc
-lc = (s) ->
-  if acons(s) and car(s) is 'array'
-    lcArray(cdr(s))
-  else orig(s)
-
-test('lc array #1', lc(list('array')), "[]")
-test('lc array #2', lc(list('array', 'x')), "[x]")
-test('lc array #3', lc(list('array', 'x', 'y')), "[x,y]")
-test('lc array #4', lc(list('array', 'x', list('array', 'y'))), "[x,[y]]")
+# # lc array
+#
+# lcArray2 = (xs) ->
+#   if xs is nil
+#     ""
+#   else ',' + car(xs) + lcArray2(cdr(xs))
+#
+# lcArray1 = (xs) ->
+#   if xs is nil
+#     ""
+#   else car(xs) + lcArray2(cdr(xs))
+#
+# lcArray = (xs) ->
+#   '[' + lcArray1(xs) + ']'
+#
+# orig = lc
+# lc = (s) ->
+#   if (acons(s) isnt nil) and (car(s) is 'array')
+#     lcArray(cdr(s))
+#   else orig(s)
+#
+# test('lc array #1', lc(list('array')), "[]")
+# test('lc array #2', lc(list('array', 'x')), "[x]")
+# test('lc array #3', lc(list('array', 'x', 'y')), "[x,y]")
+# test('lc array #4', lc(list('array', 'x', list('array', 'y'))), "[x,[y]]")

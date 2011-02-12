@@ -7,7 +7,7 @@
 ###   defined
 ### - It's organized into 3 sections: 1) Preliminary,
 ###   2) Lisp primitives, 3) The Compiler
-*/var acons, arraylist, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, infixOps, lc, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, len, list, nil, orig, pr, t, test, _;
+*/var acons, arraylist, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, infixOps, lc, lcArray, lcArray1, lcArray2, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, len, list, nil, orig, pr, t, test, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -136,14 +136,14 @@ lcInfix1 = function(op, xs) {
   if (xs === nil) {
     return "";
   } else {
-    return op + car(xs) + lcInfix1(op, cdr(xs));
+    return op + lc(car(xs)) + lcInfix1(op, cdr(xs));
   }
 };
 lcInfix = function(op, xs) {
   if (xs === nil) {
     return "";
   } else {
-    return car(xs) + lcInfix1(op, cdr(xs));
+    return lc(car(xs)) + lcInfix1(op, cdr(xs));
   }
 };
 infixOps = ['+', '-', '*', '/', '%', '>=', '<=', '>', '<', '==', '===', '!=', '!==', '=', '+=', '-=', '*=', '/=', '%=', '&&', '||'];
@@ -196,7 +196,7 @@ lcObj = function(xs) {
 };
 orig = lc;
 lc = function(s) {
-  if (acons(s) && (car(s) === 'obj')) {
+  if (acons(s) && car(s) === 'obj') {
     return lcObj(cdr(s));
   } else {
     return orig(s);
@@ -205,3 +205,33 @@ lc = function(s) {
 test('lc obj #1', lc(list('obj')), "{}");
 test('lc obj #2', lc(list('obj', 'x', 'y')), "{x:y}");
 test('lc obj #3', lc(list('obj', 'x', 'y', 'z', 'a')), "{x:y,z:a}");
+test('lc obj #4', lc(list('obj', 'x', 'y', 'z', list('+', 'x', 'y'))), "{x:y,z:x+y}");
+lcArray2 = function(xs) {
+  if (xs === nil) {
+    return "";
+  } else {
+    return ',' + car(xs) + lcArray2(cdr(xs));
+  }
+};
+lcArray1 = function(xs) {
+  if (xs === nil) {
+    return "";
+  } else {
+    return car(xs) + lcArray2(cdr(xs));
+  }
+};
+lcArray = function(xs) {
+  return '[' + lcArray1(xs) + ']';
+};
+orig = lc;
+lc = function(s) {
+  if (acons(s) && car(s) === 'array') {
+    return lcArray(cdr(s));
+  } else {
+    return orig(s);
+  }
+};
+test('lc array #1', lc(list('array')), "[]");
+test('lc array #2', lc(list('array', 'x')), "[x]");
+test('lc array #3', lc(list('array', 'x', 'y')), "[x,y]");
+test('lc array #4', lc(list('array', 'x', list('array', 'y'))), "[x,[y]]");

@@ -113,12 +113,12 @@ test('lc atom #3', lc("abc"), "abc")
 lcInfix1 = (op, xs) ->
   if xs is nil
     ""
-  else op + car(xs) + lcInfix1(op, cdr(xs))
+  else op + lc(car(xs)) + lcInfix1(op, cdr(xs))
 
 lcInfix = (op, xs) ->
   if xs is nil
     ""
-  else car(xs) + lcInfix1(op, cdr(xs))
+  else lc(car(xs)) + lcInfix1(op, cdr(xs))
 
 infixOps = ['+','-','*','/','%',
             '>=','<=','>','<','==','===','!=','!==',
@@ -156,6 +156,8 @@ test('lc infix #19', lc(list('%=', 'x', 'y')), "x%=y")
 test('lc infix #20', lc(list('&&', 'x', 'y')), "x&&y")
 test('lc infix #21', lc(list('||', 'x', 'y')), "x||y")
 
+# lc obj
+
 lcObj2 = (xs) ->
   if xs is nil
     ""
@@ -171,10 +173,37 @@ lcObj = (xs) ->
 
 orig = lc
 lc = (s) ->
-  if acons(s) and (car(s) is 'obj')
+  if acons(s) and car(s) is 'obj'
     lcObj(cdr(s))
   else orig(s)
 
 test('lc obj #1', lc(list('obj')), "{}")
 test('lc obj #2', lc(list('obj', 'x', 'y')), "{x:y}")
 test('lc obj #3', lc(list('obj', 'x', 'y', 'z', 'a')), "{x:y,z:a}")
+test('lc obj #4', lc(list('obj', 'x', 'y', 'z', list('+', 'x', 'y'))), "{x:y,z:x+y}")
+
+# lc array
+
+lcArray2 = (xs) ->
+  if xs is nil
+    ""
+  else ',' + car(xs) + lcArray2(cdr(xs))
+
+lcArray1 = (xs) ->
+  if xs is nil
+    ""
+  else car(xs) + lcArray2(cdr(xs))
+
+lcArray = (xs) ->
+  '[' + lcArray1(xs) + ']'
+
+orig = lc
+lc = (s) ->
+  if acons(s) and car(s) is 'array'
+    lcArray(cdr(s))
+  else orig(s)
+
+test('lc array #1', lc(list('array')), "[]")
+test('lc array #2', lc(list('array', 'x')), "[x]")
+test('lc array #3', lc(list('array', 'x', 'y')), "[x,y]")
+test('lc array #4', lc(list('array', 'x', list('array', 'y'))), "[x,[y]]")

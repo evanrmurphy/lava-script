@@ -7,6 +7,7 @@
 ###   defined
 ### - It's organized into 3 sections: 1) Preliminary,
 ###   2) Lisp primitives, 3) The Compiler
+###
 
 ## Preliminary
 
@@ -156,3 +157,4 @@ test('lc #23', lc(list('&&', 'x', 'y')), "x&&y")
 test('lc #24', lc(list('||', 'x', 'y')), "x||y")
 
 # more lc cases...
+

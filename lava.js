@@ -7,7 +7,7 @@
 ###   defined
 ### - It's organized into 3 sections: 1) Preliminary,
 ###   2) Lisp primitives, 3) The Compiler
-*/var acons, arraylist, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, infixOps, lc, lcInfix, lcInfix1, len, list, nil, orig, pr, t, test, _;
+*/var acons, arraylist, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, infixOps, lc, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, len, list, nil, orig, pr, t, test, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -150,7 +150,7 @@ infixOps = ['+', '-', '*', '/', '%', '>=', '<=', '>', '<', '==', '===', '!=', '!
 orig = lc;
 lc = function(s) {
   var _ref;
-  if (_ref = car(s), __indexOf.call(infixOps, _ref) >= 0) {
+  if (acons(s) && (_ref = car(s), __indexOf.call(infixOps, _ref) >= 0)) {
     return lcInfix(car(s), cdr(s));
   } else {
     return orig(s);
@@ -177,3 +177,31 @@ test('lc #21', lc(list('/=', 'x', 'y')), "x/=y");
 test('lc #22', lc(list('%=', 'x', 'y')), "x%=y");
 test('lc #23', lc(list('&&', 'x', 'y')), "x&&y");
 test('lc #24', lc(list('||', 'x', 'y')), "x||y");
+lcObj2 = function(xs) {
+  if (xs === nil) {
+    return "";
+  } else {
+    return ',' + car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs));
+  }
+};
+lcObj1 = function(xs) {
+  if (xs === nil) {
+    return "";
+  } else {
+    return car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs));
+  }
+};
+lcObj = function(xs) {
+  return '{' + lcObj1(xs) + '}';
+};
+orig = lc;
+lc = function(s) {
+  if (acons(s) && (car(s) === 'obj')) {
+    return lcObj(cdr(s));
+  } else {
+    return orig(s);
+  }
+};
+test('lc obj #1', lc(list('obj')), "{}");
+test('lc obj #2', lc(list('obj', 'x', 'y')), "{x:y}");
+test('lc obj #3', lc(list('obj', 'x', 'y', 'z', 'a')), "{x:y,z:a}");

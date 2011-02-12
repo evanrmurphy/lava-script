@@ -127,7 +127,7 @@ infixOps = ['+','-','*','/','%',
 
 orig = lc
 lc = (s) ->
-  if car(s) in infixOps
+  if acons(s) and car(s) in infixOps
     lcInfix(car(s), cdr(s))
   else orig(s)
 
@@ -156,5 +156,25 @@ test('lc #22', lc(list('%=', 'x', 'y')), "x%=y")
 test('lc #23', lc(list('&&', 'x', 'y')), "x&&y")
 test('lc #24', lc(list('||', 'x', 'y')), "x||y")
 
-# more lc cases...
+lcObj2 = (xs) ->
+  if xs is nil
+    ""
+  else ',' + car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs))
 
+lcObj1 = (xs) ->
+  if xs is nil
+    ""
+  else car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs))
+
+lcObj = (xs) ->
+  '{' + lcObj1(xs) + '}'
+
+orig = lc
+lc = (s) ->
+  if acons(s) and (car(s) is 'obj')
+    lcObj(cdr(s))
+  else orig(s)
+
+test('lc obj #1', lc(list('obj')), "{}")
+test('lc obj #2', lc(list('obj', 'x', 'y')), "{x:y}")
+test('lc obj #3', lc(list('obj', 'x', 'y', 'z', 'a')), "{x:y,z:a}")

@@ -8,12 +8,7 @@
 ### - It's organized into 3 sections: 1) Preliminary,
 ###   2) Lisp primitives, 3) The Compiler
 */var acons, arraylist, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, infixOps, lc, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcProc, lcProc1, lcProc2, len, list, nil, orig, pr, t, test, _;
-var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
-  for (var i = 0, l = this.length; i < l; i++) {
-    if (this[i] === item) return i;
-  }
-  return -1;
-};
+var __slice = Array.prototype.slice;
 _ = require('underscore');
 pr = function() {
   var args;
@@ -160,9 +155,9 @@ lc = function(s) {
 test('lc proc #1', lc(list('foo')), 'foo()');
 test('lc proc #2', lc(list('foo', 'x')), 'foo(x)');
 test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)');
-test('lc atom #1 2', lc(nil), nil);
-test('lc atom #2 2', lc(5), 5);
-test('lc atom #3 2', lc("abc"), "abc");
+test('lc atom #1', lc(nil), nil);
+test('lc atom #2', lc(5), 5);
+test('lc atom #3', lc("abc"), "abc");
 lcInfix1 = function(op, xs) {
   if (xs === nil) {
     return "";
@@ -178,41 +173,12 @@ lcInfix = function(op, xs) {
   }
 };
 infixOps = ['+', '-', '*', '/', '%', '>=', '<=', '>', '<', '==', '===', '!=', '!==', '=', '+=', '-=', '*=', '/=', '%=', '&&', '||'];
-orig = lc;
-lc = function(s) {
-  var _ref;
-  if (acons(s) !== nil) {
-    pr('lc (infix) acons isnt nil');
-    if (_ref = car(s), __indexOf.call(infixOps, _ref) >= 0) {
-      return lcInfix(car(s), cdr(s));
-    }
-  } else {
-    pr('lc (infix) else');
-    return orig(s);
-  }
-};
-test('lc infix #1', lc(list('+', 'x', 'y')), "x+y");
-test('lc infix #2', lc(list('+', 'x', 'y', 'z')), "x+y+z");
-test('lc infix #3', lc(list('-', 'x', 'y')), "x-y");
-test('lc infix #4', lc(list('*', 'x', 'y')), "x*y");
-test('lc infix #5', lc(list('%', 'x', 'y')), "x%y");
-test('lc infix #6', lc(list('>=', 'x', 'y')), "x>=y");
-test('lc infix #7', lc(list('<=', 'x', 'y')), "x<=y");
-test('lc infix #8', lc(list('>', 'x', 'y')), "x>y");
-test('lc infix #9', lc(list('<', 'x', 'y')), "x<y");
-test('lc infix #10', lc(list('==', 'x', 'y')), "x==y");
-test('lc infix #11', lc(list('===', 'x', 'y')), "x===y");
-test('lc infix #12', lc(list('!=', 'x', 'y')), "x!=y");
-test('lc infix #13', lc(list('!==', 'x', 'y')), "x!==y");
-test('lc infix #14', lc(list('=', 'x', 'y')), "x=y");
-test('lc infix #15', lc(list('+=', 'x', 'y')), "x+=y");
-test('lc infix #16', lc(list('-=', 'x', 'y')), "x-=y");
-test('lc infix #17', lc(list('*=', 'x', 'y')), "x*=y");
-test('lc infix #18', lc(list('/=', 'x', 'y')), "x/=y");
-test('lc infix #19', lc(list('%=', 'x', 'y')), "x%=y");
-test('lc infix #20', lc(list('&&', 'x', 'y')), "x&&y");
-test('lc infix #21', lc(list('||', 'x', 'y')), "x||y");
-test('lc atom #1 3', lc(nil), nil);
+test('lc proc #1', lc(list('foo')), 'foo()');
+test('lc proc #2', lc(list('foo', 'x')), 'foo(x)');
+test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)');
+test('lc atom #1', lc(nil), nil);
+test('lc atom #2', lc(5), 5);
+test('lc atom #3', lc("abc"), "abc");
 lcObj2 = function(xs) {
   if (xs === nil) {
     return "";
@@ -232,8 +198,10 @@ lcObj = function(xs) {
 };
 orig = lc;
 lc = function(s) {
-  if ((acons(s) !== nil) && (car(s) === 'obj')) {
-    return lcObj(cdr(s));
+  if (acons(s) !== nil) {
+    if (car(s) === 'obj') {
+      return lcObj(cdr(s));
+    }
   } else {
     return orig(s);
   }

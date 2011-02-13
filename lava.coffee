@@ -134,9 +134,9 @@ test('lc proc #1', lc(list('foo')), 'foo()')
 test('lc proc #2', lc(list('foo', 'x')), 'foo(x)')
 test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)')
 
-test('lc atom #1 2', lc(nil), nil)
-test('lc atom #2 2', lc(5), 5)
-test('lc atom #3 2', lc("abc"), "abc")
+test('lc atom #1', lc(nil), nil)
+test('lc atom #2', lc(5), 5)
+test('lc atom #3', lc("abc"), "abc")
 
 # lc infix
 
@@ -155,55 +155,51 @@ infixOps = ['+','-','*','/','%',
             '=','+=','-=','*=','/=','%=',
             '&&','||']
 
-orig = lc
-lc = (s) ->
-  if acons(s) isnt nil
-    pr 'lc (infix) acons isnt nil'
-    if car(s) in infixOps
-      lcInfix(car(s), cdr(s))
-  else
-    pr 'lc (infix) else'
-    orig(s)
+# orig = lc
+# lc = (s) ->
+#   if (acons(s) isnt nil) and (car(s) in infixOps)
+#       lcInfix(car(s), cdr(s))
+#   else orig(s)
+#
+# test('lc infix #1', lc(list('+', 'x', 'y')), "x+y")
+# test('lc infix #2', lc(list('+', 'x', 'y', 'z')), "x+y+z")
+# test('lc infix #3', lc(list('-', 'x', 'y')), "x-y")
+# test('lc infix #4', lc(list('*', 'x', 'y')), "x*y")
+# test('lc infix #5', lc(list('%', 'x', 'y')), "x%y")
+#
+# test('lc infix #6', lc(list('>=', 'x', 'y')), "x>=y")
+# test('lc infix #7', lc(list('<=', 'x', 'y')), "x<=y")
+# test('lc infix #8', lc(list('>', 'x', 'y')), "x>y")
+# test('lc infix #9', lc(list('<', 'x', 'y')), "x<y")
+# test('lc infix #10', lc(list('==', 'x', 'y')), "x==y")
+# test('lc infix #11', lc(list('===', 'x', 'y')), "x===y")
+# test('lc infix #12', lc(list('!=', 'x', 'y')), "x!=y")
+# test('lc infix #13', lc(list('!==', 'x', 'y')), "x!==y")
+#
+# test('lc infix #14', lc(list('=', 'x', 'y')), "x=y")
+# test('lc infix #15', lc(list('+=', 'x', 'y')), "x+=y")
+# test('lc infix #16', lc(list('-=', 'x', 'y')), "x-=y")
+# test('lc infix #17', lc(list('*=', 'x', 'y')), "x*=y")
+# test('lc infix #18', lc(list('/=', 'x', 'y')), "x/=y")
+# test('lc infix #19', lc(list('%=', 'x', 'y')), "x%=y")
+#
+# test('lc infix #20', lc(list('&&', 'x', 'y')), "x&&y")
+# test('lc infix #21', lc(list('||', 'x', 'y')), "x||y")
 
-test('lc infix #1', lc(list('+', 'x', 'y')), "x+y")
-test('lc infix #2', lc(list('+', 'x', 'y', 'z')), "x+y+z")
-test('lc infix #3', lc(list('-', 'x', 'y')), "x-y")
-test('lc infix #4', lc(list('*', 'x', 'y')), "x*y")
-test('lc infix #5', lc(list('%', 'x', 'y')), "x%y")
+test('lc proc #1', lc(list('foo')), 'foo()')
+test('lc proc #2', lc(list('foo', 'x')), 'foo(x)')
+test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)')
 
-test('lc infix #6', lc(list('>=', 'x', 'y')), "x>=y")
-test('lc infix #7', lc(list('<=', 'x', 'y')), "x<=y")
-test('lc infix #8', lc(list('>', 'x', 'y')), "x>y")
-test('lc infix #9', lc(list('<', 'x', 'y')), "x<y")
-test('lc infix #10', lc(list('==', 'x', 'y')), "x==y")
-test('lc infix #11', lc(list('===', 'x', 'y')), "x===y")
-test('lc infix #12', lc(list('!=', 'x', 'y')), "x!=y")
-test('lc infix #13', lc(list('!==', 'x', 'y')), "x!==y")
-
-test('lc infix #14', lc(list('=', 'x', 'y')), "x=y")
-test('lc infix #15', lc(list('+=', 'x', 'y')), "x+=y")
-test('lc infix #16', lc(list('-=', 'x', 'y')), "x-=y")
-test('lc infix #17', lc(list('*=', 'x', 'y')), "x*=y")
-test('lc infix #18', lc(list('/=', 'x', 'y')), "x/=y")
-test('lc infix #19', lc(list('%=', 'x', 'y')), "x%=y")
-
-test('lc infix #20', lc(list('&&', 'x', 'y')), "x&&y")
-test('lc infix #21', lc(list('||', 'x', 'y')), "x||y")
-
-test('lc atom #1 3', lc(nil), nil)
-# test('lc atom #2 3', lc(5), 5)
-# test('lc atom #3 3', lc("abc"), "abc")
+test('lc atom #1', lc(nil), nil)
+test('lc atom #2', lc(5), 5)
+test('lc atom #3', lc("abc"), "abc")
 
 # lc obj
 
 lcObj2 = (xs) ->
-  # pr 'lcObj2'
-  # pr 'xs = ', xs
   if xs is nil
     ""
-  else
-    # pr 'car(xs) = ', car(xs)
-    ',' + car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs))
+  else ',' + car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs))
 
 lcObj1 = (xs) ->
   if xs is nil
@@ -215,19 +211,26 @@ lcObj = (xs) ->
 
 orig = lc
 lc = (s) ->
-  if (acons(s) isnt nil) and (car(s) is 'obj')
-    lcObj(cdr(s))
+  if acons(s) isnt nil
+    if car(s) is 'obj'
+      lcObj(cdr(s))
   else orig(s)
-
-# pr 'lc(1) = ', lc(1)
-# pr 'lc("x") = ', lc('x')
-# pr 'acons(1) = ', acons(1)
-# pr 'atom(1) = ', atom(1)
 
 test('lc obj #1', lc(list('obj')), "{}")
 test('lc obj #2', lc(list('obj', 'x', 'y')), "{x:y}")
 test('lc obj #3', lc(list('obj', 'x', 'y', 'z', 'a')), "{x:y,z:a}")
 test('lc obj #4', lc(list('obj', 'x', 'y', 'z', list('+', 'x', 'y'))), "{x:y,z:x+y}")
+
+# test('lc proc #1', lc(list('foo')), 'foo()')
+# test('lc proc #2', lc(list('foo', 'x')), 'foo(x)')
+# test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)')
+#
+# test('lc atom #1', lc(nil), nil)
+# test('lc atom #2', lc(5), 5)
+# test('lc atom #3', lc("abc"), "abc")
+
+
+
 
 # # lc array
 #

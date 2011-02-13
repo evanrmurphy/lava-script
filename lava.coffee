@@ -27,17 +27,23 @@ test = (name, x, expected) ->
 t = 't'
 nil = 'nil'
 
-cons = (a, d) -> [a, d]
+cons = (a, d) ->
+  if _.isEqual(d, nil) then [a] else [a].concat(d)
 
-test('cons #1', cons(1, nil), [1, nil])
+test('cons #1', cons(1, nil), [1])
+test('cons #2', cons(1, 2), [1, 2])
+test('cons #3', cons(1, cons(2, nil)), [1, 2])
 
-car = (xs) -> xs[0]
+car = (xs) -> _.first(xs)
 
 test('car #1', car(cons(1, nil)), 1)
 
-cdr = (xs) -> xs[1]
+cdr = (xs) ->
+  if _.isEqual(_.rest(xs), []) then nil else _.rest(xs)
 
 test('cdr #1', cdr(cons(1, nil)), nil)
+test('cdr #2', cdr(cons(1, 2)), cons(2, nil))
+test('cdr #3', cdr(cons(1, cons(2, nil))), cons(2, nil))
 
 caar = (xs) -> car(car(xs))
 cadr = (xs) -> car(cdr(xs))
@@ -63,29 +69,14 @@ atom = (x) ->  if acons(x) is nil then t else nil
 test('atom #1', atom(nil), t)
 test('atom #2', atom(cons(1, nil)), nil)
 
-len = (xs) ->
-  if xs is nil then 0 else 1 + len(cdr(xs))
+len = (xs) -> xs.length
 
-test('len #1', len(nil), 0)
-test('len #2', len(cons(1, nil)), 1)
-test('len #3', len(cons(1, cons(2, nil))), 2)
+test('len #1', len(cons(1, nil)), 1)
+test('len #2', len(cons(1, cons(2, nil))), 2)
 
-arraylist = (a) ->
-  if a.length == 0
-    nil
-  else if a.length > 2 and a[1] is '.'
-    cons a[0], a[2]
-  else
-    cons a[0], arraylist(a[1..])
+list = (args...) -> args
 
-test('arraylist #1', arraylist([]), nil)
-test('arraylist #2', arraylist([1]), cons(1, nil))
-test('arraylist #3', arraylist([1, 2]), cons(1, cons(2, nil)))
-test('arraylist #4', arraylist([1, '.', 2]), cons(1, 2))
-
-list = (args...) -> arraylist(args)
-
-test('list #1', list(), nil)
+test('list #1', list(), [])
 test('list #2', list(1), cons(1, nil))
 test('list #3', list(1, 2), cons(1, cons(2, nil)))
 
@@ -134,27 +125,23 @@ test('lc proc #1', lc(list('foo')), 'foo()')
 test('lc proc #2', lc(list('foo', 'x')), 'foo(x)')
 test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)')
 
-test('lc atom #1', lc(nil), nil)
-test('lc atom #2', lc(5), 5)
-test('lc atom #3', lc("abc"), "abc")
-
-# lc infix
-
-lcInfix1 = (op, xs) ->
-  if xs is nil
-    ""
-  else op + car(xs) + lcInfix1(op, cdr(xs))
-
-lcInfix = (op, xs) ->
-  if xs is nil
-    ""
-  else car(xs) + lcInfix1(op, cdr(xs))
-
-infixOps = ['+','-','*','/','%',
-            '>=','<=','>','<','==','===','!=','!==',
-            '=','+=','-=','*=','/=','%=',
-            '&&','||']
-
+# # lc infix
+#
+# lcInfix1 = (op, xs) ->
+#   if xs is nil
+#     ""
+#   else op + car(xs) + lcInfix1(op, cdr(xs))
+#
+# lcInfix = (op, xs) ->
+#   if xs is nil
+#     ""
+#   else car(xs) + lcInfix1(op, cdr(xs))
+#
+# infixOps = ['+','-','*','/','%',
+#             '>=','<=','>','<','==','===','!=','!==',
+#             '=','+=','-=','*=','/=','%=',
+#             '&&','||']
+#
 # orig = lc
 # lc = (s) ->
 #   if (acons(s) isnt nil) and (car(s) in infixOps)
@@ -185,75 +172,56 @@ infixOps = ['+','-','*','/','%',
 #
 # test('lc infix #20', lc(list('&&', 'x', 'y')), "x&&y")
 # test('lc infix #21', lc(list('||', 'x', 'y')), "x||y")
-
-test('lc proc #1', lc(list('foo')), 'foo()')
-test('lc proc #2', lc(list('foo', 'x')), 'foo(x)')
-test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)')
-
-test('lc atom #1', lc(nil), nil)
-test('lc atom #2', lc(5), 5)
-test('lc atom #3', lc("abc"), "abc")
-
-# lc obj
-
-lcObj2 = (xs) ->
-  if xs is nil
-    ""
-  else ',' + car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs))
-
-lcObj1 = (xs) ->
-  if xs is nil
-    ""
-  else car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs))
-
-lcObj = (xs) ->
-  '{' + lcObj1(xs) + '}'
-
-orig = lc
-lc = (s) ->
-  if acons(s) isnt nil
-    if car(s) is 'obj'
-      lcObj(cdr(s))
-  else orig(s)
-
-test('lc obj #1', lc(list('obj')), "{}")
-test('lc obj #2', lc(list('obj', 'x', 'y')), "{x:y}")
-test('lc obj #3', lc(list('obj', 'x', 'y', 'z', 'a')), "{x:y,z:a}")
-test('lc obj #4', lc(list('obj', 'x', 'y', 'z', list('+', 'x', 'y'))), "{x:y,z:x+y}")
-
-# test('lc proc #1', lc(list('foo')), 'foo()')
-# test('lc proc #2', lc(list('foo', 'x')), 'foo(x)')
-# test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)')
 #
-# test('lc atom #1', lc(nil), nil)
-# test('lc atom #2', lc(5), 5)
-# test('lc atom #3', lc("abc"), "abc")
-
-
-
-
-# # lc array
+# # lc obj
 #
-# lcArray2 = (xs) ->
+# lcObj2 = (xs) ->
 #   if xs is nil
 #     ""
-#   else ',' + car(xs) + lcArray2(cdr(xs))
+#   else ',' + car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs))
 #
-# lcArray1 = (xs) ->
+# lcObj1 = (xs) ->
 #   if xs is nil
 #     ""
-#   else car(xs) + lcArray2(cdr(xs))
+#   else car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs))
 #
-# lcArray = (xs) ->
-#   '[' + lcArray1(xs) + ']'
+# lcObj = (xs) ->
+#   '{' + lcObj1(xs) + '}'
 #
 # orig = lc
 # lc = (s) ->
-#   if (acons(s) isnt nil) and (car(s) is 'array')
-#     lcArray(cdr(s))
+#   if acons(s) isnt nil
+#     if car(s) is 'obj'
+#       lcObj(cdr(s))
 #   else orig(s)
 #
-# test('lc array #1', lc(list('array')), "[]")
-# test('lc array #2', lc(list('array', 'x')), "[x]")
-# test('lc array #3', lc(list('array', 'x', 'y')), "[x,y]")
-# test('lc array #4', lc(list('array', 'x', list('array', 'y'))), "[x,[y]]")
+# test('lc obj #1', lc(list('obj')), "{}")
+# test('lc obj #2', lc(list('obj', 'x', 'y')), "{x:y}")
+# test('lc obj #3', lc(list('obj', 'x', 'y', 'z', 'a')), "{x:y,z:a}")
+# test('lc obj #4', lc(list('obj', 'x', 'y', 'z', list('+', 'x', 'y'))), "{x:y,z:x+y}")
+#
+# # # lc array
+# #
+# # lcArray2 = (xs) ->
+# #   if xs is nil
+# #     ""
+# #   else ',' + car(xs) + lcArray2(cdr(xs))
+# #
+# # lcArray1 = (xs) ->
+# #   if xs is nil
+# #     ""
+# #   else car(xs) + lcArray2(cdr(xs))
+# #
+# # lcArray = (xs) ->
+# #   '[' + lcArray1(xs) + ']'
+# #
+# # orig = lc
+# # lc = (s) ->
+# #   if (acons(s) isnt nil) and (car(s) is 'array')
+# #     lcArray(cdr(s))
+# #   else orig(s)
+# #
+# # test('lc array #1', lc(list('array')), "[]")
+# # test('lc array #2', lc(list('array', 'x')), "[x]")
+# # test('lc array #3', lc(list('array', 'x', 'y')), "[x,y]")
+# # test('lc array #4', lc(list('array', 'x', list('array', 'y'))), "[x,[y]]")

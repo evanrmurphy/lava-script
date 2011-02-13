@@ -7,7 +7,7 @@
 ###   defined
 ### - It's organized into 3 sections: 1) Preliminary,
 ###   2) Lisp primitives, 3) The Compiler
-*/var acons, arraylist, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, infixOps, lc, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcProc, lcProc1, lcProc2, len, list, nil, orig, pr, t, test, _;
+*/var acons, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, lc, lcProc, lcProc1, lcProc2, len, list, nil, orig, pr, t, test, _;
 var __slice = Array.prototype.slice;
 _ = require('underscore');
 pr = function() {
@@ -23,17 +23,29 @@ test = function(name, x, expected) {
 t = 't';
 nil = 'nil';
 cons = function(a, d) {
-  return [a, d];
+  if (_.isEqual(d, nil)) {
+    return [a];
+  } else {
+    return [a].concat(d);
+  }
 };
-test('cons #1', cons(1, nil), [1, nil]);
+test('cons #1', cons(1, nil), [1]);
+test('cons #2', cons(1, 2), [1, 2]);
+test('cons #3', cons(1, cons(2, nil)), [1, 2]);
 car = function(xs) {
-  return xs[0];
+  return _.first(xs);
 };
 test('car #1', car(cons(1, nil)), 1);
 cdr = function(xs) {
-  return xs[1];
+  if (_.isEqual(_.rest(xs), [])) {
+    return nil;
+  } else {
+    return _.rest(xs);
+  }
 };
 test('cdr #1', cdr(cons(1, nil)), nil);
+test('cdr #2', cdr(cons(1, 2)), cons(2, nil));
+test('cdr #3', cdr(cons(1, cons(2, nil))), cons(2, nil));
 caar = function(xs) {
   return car(car(xs));
 };
@@ -89,34 +101,16 @@ atom = function(x) {
 test('atom #1', atom(nil), t);
 test('atom #2', atom(cons(1, nil)), nil);
 len = function(xs) {
-  if (xs === nil) {
-    return 0;
-  } else {
-    return 1 + len(cdr(xs));
-  }
+  return xs.length;
 };
-test('len #1', len(nil), 0);
-test('len #2', len(cons(1, nil)), 1);
-test('len #3', len(cons(1, cons(2, nil))), 2);
-arraylist = function(a) {
-  if (a.length === 0) {
-    return nil;
-  } else if (a.length > 2 && a[1] === '.') {
-    return cons(a[0], a[2]);
-  } else {
-    return cons(a[0], arraylist(a.slice(1)));
-  }
-};
-test('arraylist #1', arraylist([]), nil);
-test('arraylist #2', arraylist([1]), cons(1, nil));
-test('arraylist #3', arraylist([1, 2]), cons(1, cons(2, nil)));
-test('arraylist #4', arraylist([1, '.', 2]), cons(1, 2));
+test('len #1', len(cons(1, nil)), 1);
+test('len #2', len(cons(1, cons(2, nil))), 2);
 list = function() {
   var args;
   args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-  return arraylist(args);
+  return args;
 };
-test('list #1', list(), nil);
+test('list #1', list(), []);
 test('list #2', list(1), cons(1, nil));
 test('list #3', list(1, 2), cons(1, cons(2, nil)));
 lc = function(s) {
@@ -155,58 +149,3 @@ lc = function(s) {
 test('lc proc #1', lc(list('foo')), 'foo()');
 test('lc proc #2', lc(list('foo', 'x')), 'foo(x)');
 test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)');
-test('lc atom #1', lc(nil), nil);
-test('lc atom #2', lc(5), 5);
-test('lc atom #3', lc("abc"), "abc");
-lcInfix1 = function(op, xs) {
-  if (xs === nil) {
-    return "";
-  } else {
-    return op + car(xs) + lcInfix1(op, cdr(xs));
-  }
-};
-lcInfix = function(op, xs) {
-  if (xs === nil) {
-    return "";
-  } else {
-    return car(xs) + lcInfix1(op, cdr(xs));
-  }
-};
-infixOps = ['+', '-', '*', '/', '%', '>=', '<=', '>', '<', '==', '===', '!=', '!==', '=', '+=', '-=', '*=', '/=', '%=', '&&', '||'];
-test('lc proc #1', lc(list('foo')), 'foo()');
-test('lc proc #2', lc(list('foo', 'x')), 'foo(x)');
-test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)');
-test('lc atom #1', lc(nil), nil);
-test('lc atom #2', lc(5), 5);
-test('lc atom #3', lc("abc"), "abc");
-lcObj2 = function(xs) {
-  if (xs === nil) {
-    return "";
-  } else {
-    return ',' + car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs));
-  }
-};
-lcObj1 = function(xs) {
-  if (xs === nil) {
-    return "";
-  } else {
-    return car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs));
-  }
-};
-lcObj = function(xs) {
-  return '{' + lcObj1(xs) + '}';
-};
-orig = lc;
-lc = function(s) {
-  if (acons(s) !== nil) {
-    if (car(s) === 'obj') {
-      return lcObj(cdr(s));
-    }
-  } else {
-    return orig(s);
-  }
-};
-test('lc obj #1', lc(list('obj')), "{}");
-test('lc obj #2', lc(list('obj', 'x', 'y')), "{x:y}");
-test('lc obj #3', lc(list('obj', 'x', 'y', 'z', 'a')), "{x:y,z:a}");
-test('lc obj #4', lc(list('obj', 'x', 'y', 'z', list('+', 'x', 'y'))), "{x:y,z:x+y}");

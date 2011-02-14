@@ -8,13 +8,15 @@
 ### - It's organized into 2 sections:
 ###    1) Preliminary,
 ###    2) The Compiler
-*/var each, isArray, isAtom, isEmpty, isEqual, isList, lc, lcProc, lcProc1, lcProc2, list, orig, pr, test, _;
+*/var each, first, isArray, isAtom, isEmpty, isEqual, isList, lc, lcProc, lcProc1, lcProc2, list, orig, pr, rest, test, _;
 var __slice = Array.prototype.slice;
 _ = require('underscore');
 isArray = _.isArray;
 isEqual = _.isEqual;
 isEmpty = _.isEmpty;
 each = _.each;
+first = _.first;
+rest = _.rest;
 pr = function() {
   var args;
   args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
@@ -52,7 +54,7 @@ lcProc2 = function(xs) {
   var acc;
   acc = "";
   each(xs, function(x) {
-    return acc = acc + ',' + lc(x);
+    return acc += ',' + lc(x);
   });
   return acc;
 };
@@ -74,3 +76,6 @@ lc = function(s) {
     return orig(s);
   }
 };
+test('lc proc #1', lc(list('foo')), 'foo()');
+test('lc proc #2', lc(list('foo', 'x')), 'foo(x)');
+test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)');

@@ -20,8 +20,8 @@ isEmpty = _.isEmpty
 
 each = _.each
 
-# first = _.first
-# rest = _.rest
+first = _.first
+rest = _.rest
 
 pr = (args...) -> console.log args...
 
@@ -69,7 +69,7 @@ test('lc atom #1', lc('x'), 'x')
 lcProc2 = (xs) ->
   acc = ""
   each xs, (x) ->
-    acc = acc + ',' + lc(x)
+    acc += ',' + lc(x)
   acc
 
 lcProc1 = (xs) ->
@@ -86,9 +86,9 @@ lc = (s) ->
     lcProc(first(s), rest(s))
   else orig(s)
 
-# test('lc proc #1', lc(list('foo')), 'foo()')
-# test('lc proc #2', lc(list('foo', 'x')), 'foo(x)')
-# test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)')
+test('lc proc #1', lc(list('foo')), 'foo()')
+test('lc proc #2', lc(list('foo', 'x')), 'foo(x)')
+test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)')
 
 # # # lc infix
 # #

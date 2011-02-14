@@ -22,8 +22,8 @@ test = (name, actual, expected) ->
 
 isArray = _.isArray
 isEmpty = _.isEmpty
-
-each = _.each
+each    = _.each
+without = _.without
 
 pr = (args...) -> console.log args...
 
@@ -199,3 +199,31 @@ test('lc array #1', lc(['array']), "[]")
 test('lc array #2', lc(['array', 'x']), "[x]")
 test('lc array #3', lc(['array', 'x', 'y']), "[x,y]")
 test('lc array #4', lc(['array', 'x', ['array', 'y']]), "[x,[y]]")
+
+# lc if
+#
+# lcIf2 = (xs) ->
+#   acc = ""
+#   each xs, (x) ->
+#     [test, conseq] = x
+#     acc += ':' + test + '?' + conseq
+#   acc
+#
+# lcIf1 = (xs) ->
+#   if isEmpty(xs)
+#     ""
+#   else
+#     [test, conseq] = xs[0]
+#     test + '?' + conseq + lcIf2(xs[1..])
+#
+# lcIf = (xs) ->
+#   lcIf1 pair(xs)
+#
+# orig = lc
+# lc = (s) ->
+#   if isList(s) and s[0] is 'if'
+#     lcIf(s[1..])
+#   else orig(s)
+#
+# test('lc if #1', lc(['if', 'x', 'y']), "x?y")
+# test('lc if #2', lc(['if', 'x', 'y', 'x', 'a'), "x?y:z?a")

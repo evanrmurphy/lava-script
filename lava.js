@@ -8,7 +8,7 @@
 ### - It's organized into 2 sections:
 ###    1) Preliminary,
 ###    2) The Compiler
-*/var each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lc, lcArray, lcArray1, lcArray2, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, orig, pair, pr, test, _;
+*/var each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lc, lcArray, lcArray1, lcArray2, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, orig, pair, pr, test, without, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -25,6 +25,7 @@ test = function(name, actual, expected) {
 isArray = _.isArray;
 isEmpty = _.isEmpty;
 each = _.each;
+without = _.without;
 pr = function() {
   var args;
   args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];

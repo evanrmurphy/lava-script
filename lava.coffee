@@ -5,27 +5,29 @@
 ### - Unit tests are inline, i.e. functions
 ###   are tested immediately after they're
 ###   defined
-### - It's organized into 3 sections: 1) Preliminary,
-###   2) Lisp primitives, 3) The Compiler
+### - It's organized into 2 sections:
+###    1) Preliminary,
+###    2) The Compiler
 ###
 
 ## Preliminary
 
-# depends on underscore.js
 _ = require('underscore');
 
-# pr is just a convenience alias for console.log
+isArray = _.isArray
+isEqual = _.isEqual
+isEmpty = _.isEmpty
+
+each = _.each
+
+# first = _.first
+# rest = _.rest
+
 pr = (args...) -> console.log args...
 
-# simple unit testing utility
 test = (name, actual, expected) ->
-  unless _(actual).isEqual(expected)
+  unless isEqual(actual, expected)
     pr "#{name} test failed"
-
-## Lisp primitives
-
-t = 't'
-nil = 'nil'
 
 list = (args...) -> args
 
@@ -33,67 +35,61 @@ test('list #1', list(), [])
 test('list #2', list(1), [1])
 test('list #3', list(1, 2), [1, 2])
 
-# isList = (x) -> if _.isList(x) then t else nil
-#
-# test('isList #1', isList(list()), t)
-# test('isList #2', isList(list(1)), t)
-# test('isList #3', isList('foo'), nil)
-#
-# atom = (x) ->  if acons(x) is nil then t else nil
-#
-# test('atom #1', atom(nil), t)
-# test('atom #2', atom(cons(1, nil)), nil)
-#
-# len = (xs) -> xs.length
-#
-# test('len #1', len(cons(1, nil)), 1)
-# test('len #2', len(cons(1, cons(2, nil))), 2)
-#
-# ## The Compiler (lc)
-#
-# # lc is built up iteratively here, one
-# # conditional at a time. lc is defined
-# # with a single conditional, tested, and
-# # then redefined with a second conditional.
-# # Each redefinition extends upon the previous
-# # definition, essentially by hand-generating
-# # the macro-expansion of the arc macro,
-# # extend (http://awwx.ws/extend).
-#
-# # lc atom
-#
-# lc = (s) ->
-#   if atom(s) isnt nil then s
-#
-# test('lc atom #1', lc(nil), nil)
-# test('lc atom #2', lc(5), 5)
-# test('lc atom #3', lc("abc"), "abc")
-#
-# # lc proc
-#
-# lcProc2 = (xs) ->
-#   if xs is nil
-#     ""
-#   else ',' + lc(car(xs)) + lcProc2(cdr(xs))
-#
-# lcProc1 = (xs) ->
-#   if xs is nil
-#     ""
-#   else lc(car(xs)) + lcProc2(cdr(xs))
-#
-# lcProc = (f, args) ->
-#   lc(f) + '(' + lcProc1(args) + ')'
-#
-# orig = lc
-# lc = (s) ->
-#   if acons(s) isnt nil
-#     lcProc(car(s), cdr(s))
-#   else orig(s)
-#
+isList = isArray
+
+test('isList #1', isList(list()), true)
+test('isList #2', isList(list(1)), true)
+test('isList #3', isList('foo'), false)
+
+isAtom = (x) ->  not isList(x)
+
+test('atom #1', isAtom('x'), true)
+test('atom #2', isAtom(list('x')), false)
+
+## The Compiler (lc)
+
+# lc is built up iteratively here, one
+# conditional at a time. lc is defined
+# with a single conditional, tested, and
+# then redefined with a second conditional.
+# Each redefinition extends upon the previous
+# definition, essentially by hand-generating
+# the macro-expansion of the arc macro,
+# extend (http://awwx.ws/extend).
+
+# lc atom
+
+lc = (s) ->
+  if isAtom(s) then s
+
+test('lc atom #1', lc('x'), 'x')
+
+# lc proc
+
+lcProc2 = (xs) ->
+  acc = ""
+  each xs, (x) ->
+    acc = acc + ',' + lc(x)
+  acc
+
+lcProc1 = (xs) ->
+  if isEmpty(xs)
+    ""
+  else lc(first(xs)) + lcProc2(rest(xs))
+
+lcProc = (f, args) ->
+  lc(f) + '(' + lcProc1(args) + ')'
+
+orig = lc
+lc = (s) ->
+  if isList(s)
+    lcProc(first(s), rest(s))
+  else orig(s)
+
 # test('lc proc #1', lc(list('foo')), 'foo()')
 # test('lc proc #2', lc(list('foo', 'x')), 'foo(x)')
 # test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)')
-#
+
 # # # lc infix
 # #
 # # lcInfix1 = (op, xs) ->

@@ -51,13 +51,21 @@ LS on the left, JS on the right in the examples below.
     (['a] o)                   o['a']
     (ref o 'a)                 o['a']
 
-### Conses
+    (. foo bar)                foo.bar
+    (. foo (bar))              foo.bar()
+    ((. foo bar))              foo.bar()
+    (. foo bar 1 2)            foo.bar(1, 2)
+    (. foo (bar 1 2))          foo.bar(1, 2)
 
-    (cons 1 nil)               [1, nil]
-    (cons 1 (cons 2 nil))      [1, [2, nil]]
-    (list 1 2)                 [1, [2, nil]]
-    '(1 2)                     [1, [2, nil]]
-  
+    (.bar foo)                 foo.bar
+    (.bar (foo))               foo.bar()
+    ((.bar foo))               foo.bar()
+    (.bar foo 1 2)             foo.bar(1, 2)
+    (.bar (foo 1 2))           foo.bar(1, 2)
+
+    (.click ($ "a")            $("a").click(function() {
+      (fn ()                     return alert("clicked");
+        (alert "clicked")))    })();
 
 ### Functions
   
@@ -69,6 +77,10 @@ LS on the left, JS on the right in the examples below.
 
 ### Chaining
 
+    (.. ($ "a") click       $("a").click(function() {
+      (fn ()                     return alert("clicked");
+        (alert "clicked")))    })();
+
     (chain ($ "a") click       $("a").click(function() {
       (fn ()                     return alert("clicked");
         (alert "clicked")))    })();
@@ -76,7 +88,7 @@ LS on the left, JS on the right in the examples below.
 ### Macros
 
     (mac $ (selector . args)
-      `(chain (jQuery ,selector) ,@args))
+      `(.. (jQuery ,selector) ,@args))
 
     ($ "a" click (fn ()        jQuery("a").click(function() {
       (alert "clicked"))         return alert("clicked");

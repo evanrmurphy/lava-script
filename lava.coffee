@@ -90,55 +90,56 @@ test('lc proc #1', lc(list('foo')), 'foo()')
 test('lc proc #2', lc(list('foo', 'x')), 'foo(x)')
 test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)')
 
-# # # lc infix
-# #
-# # lcInfix1 = (op, xs) ->
-# #   if xs is nil
-# #     ""
-# #   else op + car(xs) + lcInfix1(op, cdr(xs))
-# #
-# # lcInfix = (op, xs) ->
-# #   if xs is nil
-# #     ""
-# #   else car(xs) + lcInfix1(op, cdr(xs))
-# #
-# # infixOps = ['+','-','*','/','%',
-# #             '>=','<=','>','<','==','===','!=','!==',
-# #             '=','+=','-=','*=','/=','%=',
-# #             '&&','||']
-# #
-# # orig = lc
-# # lc = (s) ->
-# #   if (acons(s) isnt nil) and (car(s) in infixOps)
-# #       lcInfix(car(s), cdr(s))
-# #   else orig(s)
-# #
-# # test('lc infix #1', lc(list('+', 'x', 'y')), "x+y")
-# # test('lc infix #2', lc(list('+', 'x', 'y', 'z')), "x+y+z")
-# # test('lc infix #3', lc(list('-', 'x', 'y')), "x-y")
-# # test('lc infix #4', lc(list('*', 'x', 'y')), "x*y")
-# # test('lc infix #5', lc(list('%', 'x', 'y')), "x%y")
-# #
-# # test('lc infix #6', lc(list('>=', 'x', 'y')), "x>=y")
-# # test('lc infix #7', lc(list('<=', 'x', 'y')), "x<=y")
-# # test('lc infix #8', lc(list('>', 'x', 'y')), "x>y")
-# # test('lc infix #9', lc(list('<', 'x', 'y')), "x<y")
-# # test('lc infix #10', lc(list('==', 'x', 'y')), "x==y")
-# # test('lc infix #11', lc(list('===', 'x', 'y')), "x===y")
-# # test('lc infix #12', lc(list('!=', 'x', 'y')), "x!=y")
-# # test('lc infix #13', lc(list('!==', 'x', 'y')), "x!==y")
-# #
-# # test('lc infix #14', lc(list('=', 'x', 'y')), "x=y")
-# # test('lc infix #15', lc(list('+=', 'x', 'y')), "x+=y")
-# # test('lc infix #16', lc(list('-=', 'x', 'y')), "x-=y")
-# # test('lc infix #17', lc(list('*=', 'x', 'y')), "x*=y")
-# # test('lc infix #18', lc(list('/=', 'x', 'y')), "x/=y")
-# # test('lc infix #19', lc(list('%=', 'x', 'y')), "x%=y")
-# #
-# # test('lc infix #20', lc(list('&&', 'x', 'y')), "x&&y")
-# # test('lc infix #21', lc(list('||', 'x', 'y')), "x||y")
-# #
-# # # lc obj
+# lc infix
+
+lcInfix1 = (op, xs) ->
+  acc = ""
+  each xs, (x) ->
+    acc += op + x
+  acc
+
+lcInfix = (op, xs) ->
+  if isEmpty(xs)
+    ""
+  else first(xs) + lcInfix1(op, rest(xs))
+
+infixOps = ['+','-','*','/','%',
+            '>=','<=','>','<','==','===','!=','!==',
+            '=','+=','-=','*=','/=','%=',
+            '&&','||']
+
+orig = lc
+lc = (s) ->
+  if isList(s) and (first(s) in infixOps)
+      lcInfix(first(s), rest(s))
+  else orig(s)
+
+test('lc infix #1', lc(list('+', 'x', 'y')), "x+y")
+test('lc infix #2', lc(list('+', 'x', 'y', 'z')), "x+y+z")
+test('lc infix #3', lc(list('-', 'x', 'y')), "x-y")
+test('lc infix #4', lc(list('*', 'x', 'y')), "x*y")
+test('lc infix #5', lc(list('%', 'x', 'y')), "x%y")
+
+test('lc infix #6', lc(list('>=', 'x', 'y')), "x>=y")
+test('lc infix #7', lc(list('<=', 'x', 'y')), "x<=y")
+test('lc infix #8', lc(list('>', 'x', 'y')), "x>y")
+test('lc infix #9', lc(list('<', 'x', 'y')), "x<y")
+test('lc infix #10', lc(list('==', 'x', 'y')), "x==y")
+test('lc infix #11', lc(list('===', 'x', 'y')), "x===y")
+test('lc infix #12', lc(list('!=', 'x', 'y')), "x!=y")
+test('lc infix #13', lc(list('!==', 'x', 'y')), "x!==y")
+
+test('lc infix #14', lc(list('=', 'x', 'y')), "x=y")
+test('lc infix #15', lc(list('+=', 'x', 'y')), "x+=y")
+test('lc infix #16', lc(list('-=', 'x', 'y')), "x-=y")
+test('lc infix #17', lc(list('*=', 'x', 'y')), "x*=y")
+test('lc infix #18', lc(list('/=', 'x', 'y')), "x/=y")
+test('lc infix #19', lc(list('%=', 'x', 'y')), "x%=y")
+
+test('lc infix #20', lc(list('&&', 'x', 'y')), "x&&y")
+test('lc infix #21', lc(list('||', 'x', 'y')), "x||y")
+
+# # lc obj
 # #
 # # lcObj2 = (xs) ->
 # #   if xs is nil

@@ -8,8 +8,13 @@
 ### - It's organized into 2 sections:
 ###    1) Preliminary,
 ###    2) The Compiler
-*/var each, first, isArray, isAtom, isEmpty, isEqual, isList, lc, lcProc, lcProc1, lcProc2, list, orig, pr, rest, test, _;
-var __slice = Array.prototype.slice;
+*/var each, first, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lc, lcInfix, lcInfix1, lcProc, lcProc1, lcProc2, list, orig, pr, rest, test, _;
+var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
+  for (var i = 0, l = this.length; i < l; i++) {
+    if (this[i] === item) return i;
+  }
+  return -1;
+};
 _ = require('underscore');
 isArray = _.isArray;
 isEqual = _.isEqual;
@@ -79,3 +84,49 @@ lc = function(s) {
 test('lc proc #1', lc(list('foo')), 'foo()');
 test('lc proc #2', lc(list('foo', 'x')), 'foo(x)');
 test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)');
+lcInfix1 = function(op, xs) {
+  var acc;
+  acc = "";
+  each(xs, function(x) {
+    return acc += op + x;
+  });
+  return acc;
+};
+lcInfix = function(op, xs) {
+  if (isEmpty(xs)) {
+    return "";
+  } else {
+    return first(xs) + lcInfix1(op, rest(xs));
+  }
+};
+infixOps = ['+', '-', '*', '/', '%', '>=', '<=', '>', '<', '==', '===', '!=', '!==', '=', '+=', '-=', '*=', '/=', '%=', '&&', '||'];
+orig = lc;
+lc = function(s) {
+  var _ref;
+  if (isList(s) && (_ref = first(s), __indexOf.call(infixOps, _ref) >= 0)) {
+    return lcInfix(first(s), rest(s));
+  } else {
+    return orig(s);
+  }
+};
+test('lc infix #1', lc(list('+', 'x', 'y')), "x+y");
+test('lc infix #2', lc(list('+', 'x', 'y', 'z')), "x+y+z");
+test('lc infix #3', lc(list('-', 'x', 'y')), "x-y");
+test('lc infix #4', lc(list('*', 'x', 'y')), "x*y");
+test('lc infix #5', lc(list('%', 'x', 'y')), "x%y");
+test('lc infix #6', lc(list('>=', 'x', 'y')), "x>=y");
+test('lc infix #7', lc(list('<=', 'x', 'y')), "x<=y");
+test('lc infix #8', lc(list('>', 'x', 'y')), "x>y");
+test('lc infix #9', lc(list('<', 'x', 'y')), "x<y");
+test('lc infix #10', lc(list('==', 'x', 'y')), "x==y");
+test('lc infix #11', lc(list('===', 'x', 'y')), "x===y");
+test('lc infix #12', lc(list('!=', 'x', 'y')), "x!=y");
+test('lc infix #13', lc(list('!==', 'x', 'y')), "x!==y");
+test('lc infix #14', lc(list('=', 'x', 'y')), "x=y");
+test('lc infix #15', lc(list('+=', 'x', 'y')), "x+=y");
+test('lc infix #16', lc(list('-=', 'x', 'y')), "x-=y");
+test('lc infix #17', lc(list('*=', 'x', 'y')), "x*=y");
+test('lc infix #18', lc(list('/=', 'x', 'y')), "x/=y");
+test('lc infix #19', lc(list('%=', 'x', 'y')), "x%=y");
+test('lc infix #20', lc(list('&&', 'x', 'y')), "x&&y");
+test('lc infix #21', lc(list('||', 'x', 'y')), "x||y");

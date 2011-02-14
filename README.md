@@ -39,6 +39,7 @@ LS on the left, JS on the right in the examples below.
 
     (= a [1 2 3])              a = [1, 2, 3];
 
+    ([0] a)                    a[0]
     (ref a 0)                  a[0]
 
 ### Objects
@@ -46,6 +47,8 @@ LS on the left, JS on the right in the examples below.
     (= o {a 1 b 2})            o = {a: 1, b: 2};
   
     o.a                        o.a
+    (.a o)                     o.a
+    (['a] o)                   o['a']
     (ref o 'a)                 o['a']
 
 ### Conses

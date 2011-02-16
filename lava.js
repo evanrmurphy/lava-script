@@ -8,7 +8,7 @@
 ### - It's organized into 2 sections:
 ###    1) Preliminary,
 ###    2) The Compiler
-*/var each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lc, lcArray, lcArray1, lcArray2, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, orig, pair, pr, test, without, _;
+*/var each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, orig, pair, pr, test, without, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -242,3 +242,30 @@ test('lc if #2', lc(['if', 'x']), "x");
 test('lc if #3', lc(['if', 'x', 'y']), "(x?y:undefined)");
 test('lc if #4', lc(['if', 'x', 'y', 'z']), "(x?y:z)");
 test('lc if #5', lc(['if', 'x', 'y', 'z', 'a']), "(x?y:z?a:undefined)");
+lcDo1 = function(xs) {
+  var acc;
+  acc = "";
+  each(xs, function(x) {
+    return acc += ',' + x;
+  });
+  return acc;
+};
+lcDo = function(xs) {
+  if (isEmpty(xs)) {
+    return "";
+  } else {
+    return xs[0] + lcDo1(xs.slice(1));
+  }
+};
+orig = lc;
+lc = function(s) {
+  if (isList(s) && s[0] === 'do') {
+    return lcDo(s.slice(1));
+  } else {
+    return orig(s);
+  }
+};
+test('lc do #1', lc(['do']), "");
+test('lc do #2', lc(['do', 'x']), "x");
+test('lc do #3', lc(['do', 'x', 'y']), "x,y");
+test('lc do #4', lc(['do', 'x', 'y', 'z']), "x,y,z");

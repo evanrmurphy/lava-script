@@ -239,3 +239,27 @@ test('lc if #2', lc(['if', 'x']), "x")
 test('lc if #3', lc(['if', 'x', 'y']), "(x?y:undefined)")
 test('lc if #4', lc(['if', 'x', 'y', 'z']), "(x?y:z)")
 test('lc if #5', lc(['if', 'x', 'y', 'z', 'a']), "(x?y:z?a:undefined)")
+
+# lc do
+
+lcDo1 = (xs) ->
+  acc = ""
+  each xs, (x) ->
+    acc += ',' + x
+  acc
+
+lcDo = (xs) ->
+  if isEmpty(xs)
+    ""
+  else xs[0] + lcDo1(xs[1..])
+
+orig = lc
+lc = (s) ->
+  if isList(s) and s[0] is 'do'
+    lcDo(s[1..])
+  else orig(s)
+
+test('lc do #1', lc(['do']), "")
+test('lc do #2', lc(['do', 'x']), "x")
+test('lc do #3', lc(['do', 'x', 'y']), "x,y")
+test('lc do #4', lc(['do', 'x', 'y', 'z']), "x,y,z")

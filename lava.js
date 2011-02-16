@@ -8,7 +8,7 @@
 ### - It's organized into 2 sections:
 ###    1) Preliminary,
 ###    2) The Compiler
-*/var each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lc, lcArray, lcArray1, lcArray2, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, orig, pair, pr, test, without, _;
+*/var each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lc, lcArray, lcArray1, lcArray2, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, orig, pair, pr, test, without, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -49,7 +49,9 @@ pair = function(xs) {
   }
   return acc;
 };
-test('pair #1', pair(['a', '1', 'b', '2']), [['a', '1'], ['b', '2']]);
+test('pair #1', pair(['a', '1']), [['a', '1']]);
+test('pair #2', pair(['a', '1', 'b']), [['a', '1'], ['b']]);
+test('pair #3', pair(['a', '1', 'b', '2']), [['a', '1'], ['b', '2']]);
 lc = function(s) {
   if (isAtom(s)) {
     return s;
@@ -198,3 +200,45 @@ test('lc array #1', lc(['array']), "[]");
 test('lc array #2', lc(['array', 'x']), "[x]");
 test('lc array #3', lc(['array', 'x', 'y']), "[x,y]");
 test('lc array #4', lc(['array', 'x', ['array', 'y']]), "[x,[y]]");
+lcIf3 = function(ps) {
+  var acc;
+  acc = "";
+  each(ps, function(p, i) {
+    if (p.length === 1) {
+      return acc += p[0];
+    } else if (i === ps.length - 1) {
+      return acc += p[0] + '?' + p[1] + ':' + 'undefined';
+    } else {
+      return acc += p[0] + '?' + p[1] + ':';
+    }
+  });
+  return acc;
+};
+lcIf2 = function(xs) {
+  return lcIf3(pair(xs));
+};
+lcIf1 = function(xs) {
+  return '(' + lcIf2(xs) + ')';
+};
+lcIf = function(xs) {
+  if (isEmpty(xs)) {
+    return "";
+  } else if (xs.length === 1) {
+    return xs[0];
+  } else {
+    return lcIf1(xs);
+  }
+};
+orig = lc;
+lc = function(s) {
+  if (isList(s) && s[0] === 'if') {
+    return lcIf(s.slice(1));
+  } else {
+    return orig(s);
+  }
+};
+test('lc if #1', lc(['if']), "");
+test('lc if #2', lc(['if', 'x']), "x");
+test('lc if #3', lc(['if', 'x', 'y']), "(x?y:undefined)");
+test('lc if #4', lc(['if', 'x', 'y', 'z']), "(x?y:z)");
+test('lc if #5', lc(['if', 'x', 'y', 'z', 'a']), "(x?y:z?a:undefined)");

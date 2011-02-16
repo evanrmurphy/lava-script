@@ -45,7 +45,9 @@ pair = (xs) ->
     xs = xs[2..]
   acc
 
-test('pair #1', pair(['a', '1', 'b', '2']), [['a', '1'], ['b', '2']])
+test('pair #1', pair(['a', '1']), [['a', '1']])
+test('pair #2', pair(['a', '1', 'b']), [['a', '1'], ['b']])
+test('pair #3', pair(['a', '1', 'b', '2']), [['a', '1'], ['b', '2']])
 
 ## The Compiler (lc)
 
@@ -201,29 +203,39 @@ test('lc array #3', lc(['array', 'x', 'y']), "[x,y]")
 test('lc array #4', lc(['array', 'x', ['array', 'y']]), "[x,[y]]")
 
 # lc if
-#
-# lcIf2 = (xs) ->
-#   acc = ""
-#   each xs, (x) ->
-#     [test, conseq] = x
-#     acc += ':' + test + '?' + conseq
-#   acc
-#
-# lcIf1 = (xs) ->
-#   if isEmpty(xs)
-#     ""
-#   else
-#     [test, conseq] = xs[0]
-#     test + '?' + conseq + lcIf2(xs[1..])
-#
-# lcIf = (xs) ->
-#   lcIf1 pair(xs)
-#
-# orig = lc
-# lc = (s) ->
-#   if isList(s) and s[0] is 'if'
-#     lcIf(s[1..])
-#   else orig(s)
-#
-# test('lc if #1', lc(['if', 'x', 'y']), "x?y")
-# test('lc if #2', lc(['if', 'x', 'y', 'x', 'a'), "x?y:z?a")
+
+lcIf3 = (ps) ->
+  acc = ""
+  each ps, (p, i) ->
+    if p.length == 1
+      acc += p[0]
+    else if i == ps.length-1
+      acc += p[0] + '?' + p[1] + ':' + 'undefined'
+    else
+      acc += p[0] + '?' + p[1] + ':'
+  acc
+
+lcIf2 = (xs) ->
+  lcIf3 pair(xs)
+
+lcIf1 = (xs) ->
+  '(' + lcIf2(xs) + ')'
+
+lcIf = (xs) ->
+  if isEmpty(xs)
+    ""
+  else if xs.length == 1
+    xs[0]
+  else lcIf1(xs)
+
+orig = lc
+lc = (s) ->
+  if isList(s) and s[0] is 'if'
+    lcIf(s[1..])
+  else orig(s)
+
+test('lc if #1', lc(['if']), "")
+test('lc if #2', lc(['if', 'x']), "x")
+test('lc if #3', lc(['if', 'x', 'y']), "(x?y:undefined)")
+test('lc if #4', lc(['if', 'x', 'y', 'z']), "(x?y:z)")
+test('lc if #5', lc(['if', 'x', 'y', 'z', 'a']), "(x?y:z?a:undefined)")

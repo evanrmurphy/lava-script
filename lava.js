@@ -5,140 +5,72 @@
 ### - Unit tests are inline, i.e. functions
 ###   are tested immediately after they're
 ###   defined
-### - It's organized into 3 sections: 1) Preliminary,
-###   2) Lisp primitives, 3) The Compiler
-*/var acons, arraylist, atom, caaar, caadr, caar, cadar, caddr, cadr, car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, infixOps, lc, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcProc, lcProc1, lcProc2, len, list, nil, orig, pr, t, test, _;
-var __slice = Array.prototype.slice;
+### - It's organized into 2 sections:
+###    1) Preliminary,
+###    2) The Compiler
+*/var each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, orig, pair, pr, test, without, _;
+var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
+  for (var i = 0, l = this.length; i < l; i++) {
+    if (this[i] === item) return i;
+  }
+  return -1;
+};
 _ = require('underscore');
+isEqual = _.isEqual;
+test = function(name, actual, expected) {
+  if (!isEqual(actual, expected)) {
+    return pr("" + name + " test failed");
+  }
+};
+isArray = _.isArray;
+isEmpty = _.isEmpty;
+each = _.each;
+without = _.without;
 pr = function() {
   var args;
   args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
   return console.log.apply(console, args);
 };
-test = function(name, x, expected) {
-  if (!_(x).isEqual(expected)) {
-    return pr("" + name + " test failed");
+isList = isArray;
+test('isList #1', isList([]), true);
+test('isList #2', isList([1]), true);
+test('isList #3', isList('foo'), false);
+isAtom = function(x) {
+  return !isList(x);
+};
+test('isAtom #1', isAtom('x'), true);
+test('isAtom #2', isAtom(['x']), false);
+pair = function(xs) {
+  var acc;
+  acc = [];
+  while (!isEmpty(xs)) {
+    acc.push(xs.slice(0, 1 + 1));
+    xs = xs.slice(2);
   }
+  return acc;
 };
-t = 't';
-nil = 'nil';
-cons = function(a, d) {
-  return [a, d];
-};
-test('cons #1', cons(1, nil), [1, nil]);
-car = function(xs) {
-  return xs[0];
-};
-test('car #1', car(cons(1, nil)), 1);
-cdr = function(xs) {
-  return xs[1];
-};
-test('cdr #1', cdr(cons(1, nil)), nil);
-caar = function(xs) {
-  return car(car(xs));
-};
-cadr = function(xs) {
-  return car(cdr(xs));
-};
-cdar = function(xs) {
-  return cdr(car(xs));
-};
-cddr = function(xs) {
-  return cdr(cdr(xs));
-};
-caaar = function(xs) {
-  return car(car(car(xs)));
-};
-caadr = function(xs) {
-  return car(car(cdr(xs)));
-};
-cadar = function(xs) {
-  return car(cdr(car(xs)));
-};
-caddr = function(xs) {
-  return car(cdr(cdr(xs)));
-};
-cdaar = function(xs) {
-  return cdr(car(car(xs)));
-};
-cdadr = function(xs) {
-  return cdr(car(cdr(xs)));
-};
-cddar = function(xs) {
-  return cdr(cdr(car(xs)));
-};
-cdddr = function(xs) {
-  return cdr(cdr(cdr(xs)));
-};
-acons = function(x) {
-  if (_.isArray(x)) {
-    return t;
-  } else {
-    return nil;
-  }
-};
-test('acons #1', acons(nil), nil);
-test('acons #2', acons(cons(1, nil)), t);
-atom = function(x) {
-  if (acons(x) === nil) {
-    return t;
-  } else {
-    return nil;
-  }
-};
-test('atom #1', atom(nil), t);
-test('atom #2', atom(cons(1, nil)), nil);
-len = function(xs) {
-  if (xs === nil) {
-    return 0;
-  } else {
-    return 1 + len(cdr(xs));
-  }
-};
-test('len #1', len(nil), 0);
-test('len #2', len(cons(1, nil)), 1);
-test('len #3', len(cons(1, cons(2, nil))), 2);
-arraylist = function(a) {
-  if (a.length === 0) {
-    return nil;
-  } else if (a.length > 2 && a[1] === '.') {
-    return cons(a[0], a[2]);
-  } else {
-    return cons(a[0], arraylist(a.slice(1)));
-  }
-};
-test('arraylist #1', arraylist([]), nil);
-test('arraylist #2', arraylist([1]), cons(1, nil));
-test('arraylist #3', arraylist([1, 2]), cons(1, cons(2, nil)));
-test('arraylist #4', arraylist([1, '.', 2]), cons(1, 2));
-list = function() {
-  var args;
-  args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-  return arraylist(args);
-};
-test('list #1', list(), nil);
-test('list #2', list(1), cons(1, nil));
-test('list #3', list(1, 2), cons(1, cons(2, nil)));
+test('pair #1', pair(['a', '1']), [['a', '1']]);
+test('pair #2', pair(['a', '1', 'b']), [['a', '1'], ['b']]);
+test('pair #3', pair(['a', '1', 'b', '2']), [['a', '1'], ['b', '2']]);
 lc = function(s) {
-  if (atom(s) !== nil) {
+  if (isAtom(s)) {
     return s;
   }
 };
-test('lc atom #1', lc(nil), nil);
-test('lc atom #2', lc(5), 5);
-test('lc atom #3', lc("abc"), "abc");
+test('lc atom #1', lc('x'), 'x');
 lcProc2 = function(xs) {
-  if (xs === nil) {
-    return "";
-  } else {
-    return ',' + lc(car(xs)) + lcProc2(cdr(xs));
-  }
+  var acc;
+  acc = "";
+  each(xs, function(x) {
+    return acc += ',' + lc(x);
+  });
+  return acc;
 };
 lcProc1 = function(xs) {
-  if (xs === nil) {
+  if (isEmpty(xs)) {
     return "";
   } else {
-    return lc(car(xs)) + lcProc2(cdr(xs));
+    return lc(xs[0]) + lcProc2(xs.slice(1));
   }
 };
 lcProc = function(f, args) {
@@ -146,67 +78,194 @@ lcProc = function(f, args) {
 };
 orig = lc;
 lc = function(s) {
-  if (acons(s) !== nil) {
-    return lcProc(car(s), cdr(s));
+  if (isList(s)) {
+    return lcProc(s[0], s.slice(1));
   } else {
     return orig(s);
   }
 };
-test('lc proc #1', lc(list('foo')), 'foo()');
-test('lc proc #2', lc(list('foo', 'x')), 'foo(x)');
-test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)');
-test('lc atom #1', lc(nil), nil);
-test('lc atom #2', lc(5), 5);
-test('lc atom #3', lc("abc"), "abc");
+test('lc proc #1', lc(['foo']), 'foo()');
+test('lc proc #2', lc(['foo', 'x']), 'foo(x)');
+test('lc proc #3', lc(['foo', 'x', 'y']), 'foo(x,y)');
 lcInfix1 = function(op, xs) {
-  if (xs === nil) {
-    return "";
-  } else {
-    return op + car(xs) + lcInfix1(op, cdr(xs));
-  }
+  var acc;
+  acc = "";
+  each(xs, function(x) {
+    return acc += op + x;
+  });
+  return acc;
 };
 lcInfix = function(op, xs) {
-  if (xs === nil) {
+  if (isEmpty(xs)) {
     return "";
   } else {
-    return car(xs) + lcInfix1(op, cdr(xs));
+    return xs[0] + lcInfix1(op, xs.slice(1));
   }
 };
 infixOps = ['+', '-', '*', '/', '%', '>=', '<=', '>', '<', '==', '===', '!=', '!==', '=', '+=', '-=', '*=', '/=', '%=', '&&', '||'];
-test('lc proc #1', lc(list('foo')), 'foo()');
-test('lc proc #2', lc(list('foo', 'x')), 'foo(x)');
-test('lc proc #3', lc(list('foo', 'x', 'y')), 'foo(x,y)');
-test('lc atom #1', lc(nil), nil);
-test('lc atom #2', lc(5), 5);
-test('lc atom #3', lc("abc"), "abc");
+orig = lc;
+lc = function(s) {
+  var _ref;
+  if (isList(s) && (_ref = s[0], __indexOf.call(infixOps, _ref) >= 0)) {
+    return lcInfix(s[0], s.slice(1));
+  } else {
+    return orig(s);
+  }
+};
+test('lc infix #1', lc(['+', 'x', 'y']), "x+y");
+test('lc infix #2', lc(['+', 'x', 'y', 'z']), "x+y+z");
+test('lc infix #3', lc(['-', 'x', 'y']), "x-y");
+test('lc infix #4', lc(['*', 'x', 'y']), "x*y");
+test('lc infix #5', lc(['%', 'x', 'y']), "x%y");
+test('lc infix #6', lc(['>=', 'x', 'y']), "x>=y");
+test('lc infix #7', lc(['<=', 'x', 'y']), "x<=y");
+test('lc infix #8', lc(['>', 'x', 'y']), "x>y");
+test('lc infix #9', lc(['<', 'x', 'y']), "x<y");
+test('lc infix #10', lc(['==', 'x', 'y']), "x==y");
+test('lc infix #11', lc(['===', 'x', 'y']), "x===y");
+test('lc infix #12', lc(['!=', 'x', 'y']), "x!=y");
+test('lc infix #13', lc(['!==', 'x', 'y']), "x!==y");
+test('lc infix #14', lc(['=', 'x', 'y']), "x=y");
+test('lc infix #15', lc(['+=', 'x', 'y']), "x+=y");
+test('lc infix #16', lc(['-=', 'x', 'y']), "x-=y");
+test('lc infix #17', lc(['*=', 'x', 'y']), "x*=y");
+test('lc infix #18', lc(['/=', 'x', 'y']), "x/=y");
+test('lc infix #19', lc(['%=', 'x', 'y']), "x%=y");
+test('lc infix #20', lc(['&&', 'x', 'y']), "x&&y");
+test('lc infix #21', lc(['||', 'x', 'y']), "x||y");
+lcObj3 = function(xs) {
+  var acc;
+  acc = "";
+  each(xs, function(x) {
+    var k, v;
+    k = x[0], v = x[1];
+    return acc += ',' + k + ':' + v;
+  });
+  return acc;
+};
 lcObj2 = function(xs) {
-  if (xs === nil) {
+  var k, v, _ref;
+  if (isEmpty(xs)) {
     return "";
   } else {
-    return ',' + car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs));
+    _ref = xs[0], k = _ref[0], v = _ref[1];
+    return k + ':' + v + lcObj3(xs.slice(1));
   }
 };
 lcObj1 = function(xs) {
-  if (xs === nil) {
-    return "";
-  } else {
-    return car(xs) + ':' + cadr(xs) + lcObj2(cddr(xs));
-  }
+  return lcObj2(pair(xs));
 };
 lcObj = function(xs) {
   return '{' + lcObj1(xs) + '}';
 };
 orig = lc;
 lc = function(s) {
-  if (acons(s) !== nil) {
-    if (car(s) === 'obj') {
-      return lcObj(cdr(s));
-    }
+  if (isList(s) && s[0] === 'obj') {
+    return lcObj(s.slice(1));
   } else {
     return orig(s);
   }
 };
-test('lc obj #1', lc(list('obj')), "{}");
-test('lc obj #2', lc(list('obj', 'x', 'y')), "{x:y}");
-test('lc obj #3', lc(list('obj', 'x', 'y', 'z', 'a')), "{x:y,z:a}");
-test('lc obj #4', lc(list('obj', 'x', 'y', 'z', list('+', 'x', 'y'))), "{x:y,z:x+y}");
+test('lc obj #1', lc(['obj']), "{}");
+test('lc obj #2', lc(['obj', 'x', 'y']), "{x:y}");
+test('lc obj #3', lc(['obj', 'x', 'y', 'z', 'a']), "{x:y,z:a}");
+test('lc obj #4', lc(['obj', 'x', 'y', 'z', ['+', 'x', 'y']]), "{x:y,z:x+y}");
+lcArray2 = function(xs) {
+  var acc;
+  acc = "";
+  each(xs, function(x) {
+    return acc += ',' + x;
+  });
+  return acc;
+};
+lcArray1 = function(xs) {
+  if (isEmpty(xs)) {
+    return "";
+  } else {
+    return xs[0] + lcArray2(xs.slice(1));
+  }
+};
+lcArray = function(xs) {
+  return '[' + lcArray1(xs) + ']';
+};
+orig = lc;
+lc = function(s) {
+  if (isList(s) && s[0] === 'array') {
+    return lcArray(s.slice(1));
+  } else {
+    return orig(s);
+  }
+};
+test('lc array #1', lc(['array']), "[]");
+test('lc array #2', lc(['array', 'x']), "[x]");
+test('lc array #3', lc(['array', 'x', 'y']), "[x,y]");
+test('lc array #4', lc(['array', 'x', ['array', 'y']]), "[x,[y]]");
+lcIf3 = function(ps) {
+  var acc;
+  acc = "";
+  each(ps, function(p, i) {
+    if (p.length === 1) {
+      return acc += p[0];
+    } else if (i === ps.length - 1) {
+      return acc += p[0] + '?' + p[1] + ':' + 'undefined';
+    } else {
+      return acc += p[0] + '?' + p[1] + ':';
+    }
+  });
+  return acc;
+};
+lcIf2 = function(xs) {
+  return lcIf3(pair(xs));
+};
+lcIf1 = function(xs) {
+  return '(' + lcIf2(xs) + ')';
+};
+lcIf = function(xs) {
+  if (isEmpty(xs)) {
+    return "";
+  } else if (xs.length === 1) {
+    return xs[0];
+  } else {
+    return lcIf1(xs);
+  }
+};
+orig = lc;
+lc = function(s) {
+  if (isList(s) && s[0] === 'if') {
+    return lcIf(s.slice(1));
+  } else {
+    return orig(s);
+  }
+};
+test('lc if #1', lc(['if']), "");
+test('lc if #2', lc(['if', 'x']), "x");
+test('lc if #3', lc(['if', 'x', 'y']), "(x?y:undefined)");
+test('lc if #4', lc(['if', 'x', 'y', 'z']), "(x?y:z)");
+test('lc if #5', lc(['if', 'x', 'y', 'z', 'a']), "(x?y:z?a:undefined)");
+lcDo1 = function(xs) {
+  var acc;
+  acc = "";
+  each(xs, function(x) {
+    return acc += ',' + x;
+  });
+  return acc;
+};
+lcDo = function(xs) {
+  if (isEmpty(xs)) {
+    return "";
+  } else {
+    return xs[0] + lcDo1(xs.slice(1));
+  }
+};
+orig = lc;
+lc = function(s) {
+  if (isList(s) && s[0] === 'do') {
+    return lcDo(s.slice(1));
+  } else {
+    return orig(s);
+  }
+};
+test('lc do #1', lc(['do']), "");
+test('lc do #2', lc(['do', 'x']), "x");
+test('lc do #3', lc(['do', 'x', 'y']), "x,y");
+test('lc do #4', lc(['do', 'x', 'y', 'z']), "x,y,z");

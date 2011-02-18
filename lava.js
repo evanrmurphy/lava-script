@@ -10,7 +10,7 @@
 ###    2) Compiler
 ###    3) Reader
 ###    4) Interface
-*/var arrayOrig, atom, doOrig, each, ifOrig, infixOps, infixOrig, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, objOrig, pair, parse, pr, procOrig, read, readFrom, test, tokenize, without, _;
+*/var atom, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, pair, parse, pr, read, readFrom, test, tokenize, without, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -78,14 +78,17 @@ lcProc1 = function(xs) {
 lcProc = function(f, args) {
   return lc(f) + '(' + lcProc1(args) + ')';
 };
-procOrig = lc;
-lc = function(s) {
-  if (isList(s)) {
-    return lcProc(s[0], s.slice(1));
-  } else {
-    return procOrig(s);
-  }
-};
+(function() {
+  var orig;
+  orig = lc;
+  return lc = function(s) {
+    if (isList(s)) {
+      return lcProc(s[0], s.slice(1));
+    } else {
+      return orig(s);
+    }
+  };
+})();
 test('lc proc #1', lc(['foo']), 'foo()');
 test('lc proc #2', lc(['foo', 'x']), 'foo(x)');
 test('lc proc #3', lc(['foo', 'x', 'y']), 'foo(x,y)');
@@ -106,15 +109,18 @@ lcInfix = function(op, xs) {
   }
 };
 infixOps = ['+', '-', '*', '/', '%', '>=', '<=', '>', '<', '==', '===', '!=', '!==', '=', '+=', '-=', '*=', '/=', '%=', '&&', '||'];
-infixOrig = lc;
-lc = function(s) {
-  var _ref;
-  if (isList(s) && (_ref = s[0], __indexOf.call(infixOps, _ref) >= 0)) {
-    return lcInfix(s[0], s.slice(1));
-  } else {
-    return infixOrig(s);
-  }
-};
+(function() {
+  var orig;
+  orig = lc;
+  return lc = function(s) {
+    var _ref;
+    if (isList(s) && (_ref = s[0], __indexOf.call(infixOps, _ref) >= 0)) {
+      return lcInfix(s[0], s.slice(1));
+    } else {
+      return orig(s);
+    }
+  };
+})();
 test('lc infix #1', lc(['+', 'x', 'y']), "x+y");
 test('lc infix #2', lc(['+', 'x', 'y', 'z']), "x+y+z");
 test('lc infix #3', lc(['-', 'x', 'y']), "x-y");
@@ -161,14 +167,17 @@ lcObj1 = function(xs) {
 lcObj = function(xs) {
   return '{' + lcObj1(xs) + '}';
 };
-objOrig = lc;
-lc = function(s) {
-  if (isList(s) && s[0] === 'obj') {
-    return lcObj(s.slice(1));
-  } else {
-    return objOrig(s);
-  }
-};
+(function() {
+  var orig;
+  orig = lc;
+  return lc = function(s) {
+    if (isList(s) && s[0] === 'obj') {
+      return lcObj(s.slice(1));
+    } else {
+      return orig(s);
+    }
+  };
+})();
 test('lc obj #1', lc(['obj']), "{}");
 test('lc obj #2', lc(['obj', 'x', 'y']), "{x:y}");
 test('lc obj #3', lc(['obj', 'x', 'y', 'z', 'a']), "{x:y,z:a}");
@@ -191,14 +200,17 @@ lcArray1 = function(xs) {
 lcArray = function(xs) {
   return '[' + lcArray1(xs) + ']';
 };
-arrayOrig = lc;
-lc = function(s) {
-  if (isList(s) && s[0] === 'array') {
-    return lcArray(s.slice(1));
-  } else {
-    return arrayOrig(s);
-  }
-};
+(function() {
+  var orig;
+  orig = lc;
+  return lc = function(s) {
+    if (isList(s) && s[0] === 'array') {
+      return lcArray(s.slice(1));
+    } else {
+      return orig(s);
+    }
+  };
+})();
 test('lc array #1', lc(['array']), "[]");
 test('lc array #2', lc(['array', 'x']), "[x]");
 test('lc array #3', lc(['array', 'x', 'y']), "[x,y]");
@@ -232,14 +244,17 @@ lcIf = function(xs) {
     return lcIf1(xs);
   }
 };
-ifOrig = lc;
-lc = function(s) {
-  if (isList(s) && s[0] === 'if') {
-    return lcIf(s.slice(1));
-  } else {
-    return ifOrig(s);
-  }
-};
+(function() {
+  var orig;
+  orig = lc;
+  return lc = function(s) {
+    if (isList(s) && s[0] === 'if') {
+      return lcIf(s.slice(1));
+    } else {
+      return orig(s);
+    }
+  };
+})();
 test('lc if #1', lc(['if']), "");
 test('lc if #2', lc(['if', 'x']), "x");
 test('lc if #3', lc(['if', 'x', 'y']), "(x?y:undefined)");
@@ -260,14 +275,17 @@ lcDo = function(xs) {
     return xs[0] + lcDo1(xs.slice(1));
   }
 };
-doOrig = lc;
-lc = function(s) {
-  if (isList(s) && s[0] === 'do') {
-    return lcDo(s.slice(1));
-  } else {
-    return doOrig(s);
-  }
-};
+(function() {
+  var orig;
+  orig = lc;
+  return lc = function(s) {
+    if (isList(s) && s[0] === 'do') {
+      return lcDo(s.slice(1));
+    } else {
+      return orig(s);
+    }
+  };
+})();
 test('lc do #1', lc(['do']), "");
 test('lc do #2', lc(['do', 'x']), "x");
 test('lc do #3', lc(['do', 'x', 'y']), "x,y");

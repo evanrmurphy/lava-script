@@ -85,11 +85,13 @@ lcProc1 = (xs) ->
 lcProc = (f, args) ->
   lc(f) + '(' + lcProc1(args) + ')'
 
-procOrig = lc
-lc = (s) ->
-  if isList(s)
-    lcProc(s[0], s[1..])
-  else procOrig(s)
+(->
+  orig = lc
+  lc = (s) ->
+    if isList(s)
+      lcProc(s[0], s[1..])
+    else orig(s)
+)()
 
 test('lc proc #1', lc(['foo']), 'foo()')
 test('lc proc #2', lc(['foo', 'x']), 'foo(x)')
@@ -115,11 +117,13 @@ infixOps = ['+','-','*','/','%',
             '=','+=','-=','*=','/=','%=',
             '&&','||']
 
-infixOrig = lc
-lc = (s) ->
-  if isList(s) and (s[0] in infixOps)
-    lcInfix(s[0], s[1..])
-  else infixOrig(s)
+(->
+  orig = lc
+  lc = (s) ->
+    if isList(s) and (s[0] in infixOps)
+      lcInfix(s[0], s[1..])
+    else orig(s)
+)()
 
 test('lc infix #1', lc(['+', 'x', 'y']), "x+y")
 test('lc infix #2', lc(['+', 'x', 'y', 'z']), "x+y+z")
@@ -168,11 +172,13 @@ lcObj1 = (xs) ->
 lcObj = (xs) ->
   '{' + lcObj1(xs) + '}'
 
-objOrig = lc
-lc = (s) ->
-  if isList(s) and s[0] is 'obj'
-    lcObj(s[1..])
-  else objOrig(s)
+(->
+  orig = lc
+  lc = (s) ->
+    if isList(s) and s[0] is 'obj'
+      lcObj(s[1..])
+    else orig(s)
+)()
 
 test('lc obj #1', lc(['obj']), "{}")
 test('lc obj #2', lc(['obj', 'x', 'y']), "{x:y}")
@@ -195,11 +201,13 @@ lcArray1 = (xs) ->
 lcArray = (xs) ->
   '[' + lcArray1(xs) + ']'
 
-arrayOrig = lc
-lc = (s) ->
-  if isList(s) and s[0] is 'array'
-    lcArray(s[1..])
-  else arrayOrig(s)
+(->
+  orig = lc
+  lc = (s) ->
+    if isList(s) and s[0] is 'array'
+      lcArray(s[1..])
+    else orig(s)
+)()
 
 test('lc array #1', lc(['array']), "[]")
 test('lc array #2', lc(['array', 'x']), "[x]")
@@ -232,11 +240,13 @@ lcIf = (xs) ->
     xs[0]
   else lcIf1(xs)
 
-ifOrig = lc
-lc = (s) ->
-  if isList(s) and s[0] is 'if'
-    lcIf(s[1..])
-  else ifOrig(s)
+(->
+  orig = lc
+  lc = (s) ->
+    if isList(s) and s[0] is 'if'
+      lcIf(s[1..])
+    else orig(s)
+)()
 
 test('lc if #1', lc(['if']), "")
 test('lc if #2', lc(['if', 'x']), "x")
@@ -257,11 +267,13 @@ lcDo = (xs) ->
     ""
   else xs[0] + lcDo1(xs[1..])
 
-doOrig = lc
-lc = (s) ->
-  if isList(s) and s[0] is 'do'
-    lcDo(s[1..])
-  else doOrig(s)
+(->
+  orig = lc
+  lc = (s) ->
+    if isList(s) and s[0] is 'do'
+      lcDo(s[1..])
+    else orig(s)
+)()
 
 test('lc do #1', lc(['do']), "")
 test('lc do #2', lc(['do', 'x']), "x")

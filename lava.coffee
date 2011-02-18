@@ -279,6 +279,39 @@ test('lc do #2', lc(['do', 'x']), "x")
 test('lc do #3', lc(['do', 'x', 'y']), "x,y")
 test('lc do #4', lc(['do', 'x', 'y', 'z']), "x,y,z")
 
+# lc fn
+
+lcFn4 = (xs) ->
+  if isEmpty(xs)
+    ""
+  else 'return ' + lcDo(xs) + ';'
+
+lcFn3 = (xs) -> lcDo(xs)
+
+lcFn2 = (args, body) ->
+  'function' + '(' + lcFn3(args) + ')' + '{' + lcFn4(body) + '}'
+
+lcFn1 = (xs) ->
+  lcFn2(xs[0], xs[1..])
+
+lcFn = (xs) ->
+  '(' + lcFn1(xs) + ')'
+
+(->
+  orig = lc
+  lc = (s) ->
+    if isList(s) and s[0] is 'fn'
+      lcFn(s[1..])
+    else orig(s)
+)()
+
+test('lc fn #1', lc(['fn', []]), "(function(){})")
+test('lc fn #2', lc(['fn', ['x']]), "(function(x){})")
+test('lc fn #3', lc(['fn', ['x'], 'x']), "(function(x){return x;})")
+test('lc fn #4', lc(['fn', ['x', 'y'], 'x']), "(function(x,y){return x;})")
+test('lc fn #4', lc(['fn', ['x'], 'x', 'y']), "(function(x){return x,y;})")
+test('lc fn #4', lc(['fn', ['x', 'y'], 'x', 'y']), "(function(x,y){return x,y;})")
+
 ## Reader
 
 atom = (token) ->
@@ -323,3 +356,4 @@ lava = (s) -> lc parse(s)
 test('lava #1', lava('x'), 'x')
 test('lava #2', lava('(+ x y)'), 'x+y')
 test('lava #3', lava('(do x y)'), 'x,y')
+test('lava #4', lava('(fn ())'), '(function(){})')

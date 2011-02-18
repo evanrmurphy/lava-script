@@ -10,7 +10,7 @@
 ###    2) Compiler
 ###    3) Reader
 ###    4) Interface
-*/var atom, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, pair, parse, pr, read, readFrom, test, tokenize, without, _;
+*/var atom, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcFn, lcFn1, lcFn2, lcFn3, lcFn4, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, pair, parse, pr, read, readFrom, test, tokenize, without, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -289,6 +289,42 @@ test('lc do #1', lc(['do']), "");
 test('lc do #2', lc(['do', 'x']), "x");
 test('lc do #3', lc(['do', 'x', 'y']), "x,y");
 test('lc do #4', lc(['do', 'x', 'y', 'z']), "x,y,z");
+lcFn4 = function(xs) {
+  if (isEmpty(xs)) {
+    return "";
+  } else {
+    return 'return ' + lcDo(xs) + ';';
+  }
+};
+lcFn3 = function(xs) {
+  return lcDo(xs);
+};
+lcFn2 = function(args, body) {
+  return 'function' + '(' + lcFn3(args) + ')' + '{' + lcFn4(body) + '}';
+};
+lcFn1 = function(xs) {
+  return lcFn2(xs[0], xs.slice(1));
+};
+lcFn = function(xs) {
+  return '(' + lcFn1(xs) + ')';
+};
+(function() {
+  var orig;
+  orig = lc;
+  return lc = function(s) {
+    if (isList(s) && s[0] === 'fn') {
+      return lcFn(s.slice(1));
+    } else {
+      return orig(s);
+    }
+  };
+})();
+test('lc fn #1', lc(['fn', []]), "(function(){})");
+test('lc fn #2', lc(['fn', ['x']]), "(function(x){})");
+test('lc fn #3', lc(['fn', ['x'], 'x']), "(function(x){return x;})");
+test('lc fn #4', lc(['fn', ['x', 'y'], 'x']), "(function(x,y){return x;})");
+test('lc fn #4', lc(['fn', ['x'], 'x', 'y']), "(function(x){return x,y;})");
+test('lc fn #4', lc(['fn', ['x', 'y'], 'x', 'y']), "(function(x,y){return x,y;})");
 atom = function(token) {
   if (token.match(/^\d+\.?$/)) {
     return parseInt(token);
@@ -333,3 +369,4 @@ lava = function(s) {
 test('lava #1', lava('x'), 'x');
 test('lava #2', lava('(+ x y)'), 'x+y');
 test('lava #3', lava('(do x y)'), 'x,y');
+test('lava #4', lava('(fn ())'), '(function(){})');

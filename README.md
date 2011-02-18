@@ -8,9 +8,10 @@ See [lava.coffee](https://github.com/evanrmurphy/lava-script/blob/master/lava.co
 
 ## Todo
 
-- the rest of the compiler core (lc)
-- the reader (consider using the reader from [Lispy](http://norvig.com/lispy2.html) as a guide)
-- macro system
+- better reader (support strings!)
+- macros
+- repl
+- syntax conveniences (like the dot operator)
 - pretty-printed output
 - npm packaging
 

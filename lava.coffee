@@ -309,8 +309,8 @@ test('lc fn #1', lc(['fn', []]), "(function(){})")
 test('lc fn #2', lc(['fn', ['x']]), "(function(x){})")
 test('lc fn #3', lc(['fn', ['x'], 'x']), "(function(x){return x;})")
 test('lc fn #4', lc(['fn', ['x', 'y'], 'x']), "(function(x,y){return x;})")
-test('lc fn #4', lc(['fn', ['x'], 'x', 'y']), "(function(x){return x,y;})")
-test('lc fn #4', lc(['fn', ['x', 'y'], 'x', 'y']), "(function(x,y){return x,y;})")
+test('lc fn #5', lc(['fn', ['x'], 'x', 'y']), "(function(x){return x,y;})")
+test('lc fn #6', lc(['fn', ['x', 'y'], 'x', 'y']), "(function(x,y){return x,y;})")
 
 ## Reader
 

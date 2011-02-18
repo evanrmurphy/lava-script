@@ -92,7 +92,6 @@ lcProc = function(f, args) {
 test('lc proc #1', lc(['foo']), 'foo()');
 test('lc proc #2', lc(['foo', 'x']), 'foo(x)');
 test('lc proc #3', lc(['foo', 'x', 'y']), 'foo(x,y)');
-test('lc atom #1', lc('x'), 'x');
 lcInfix1 = function(op, xs) {
   var acc;
   acc = "";
@@ -105,7 +104,7 @@ lcInfix = function(op, xs) {
   if (isEmpty(xs)) {
     return "";
   } else {
-    return xs[0] + lcInfix1(op, xs.slice(1));
+    return lc(xs[0]) + lcInfix1(op, xs.slice(1));
   }
 };
 infixOps = ['+', '-', '*', '/', '%', '>=', '<=', '>', '<', '==', '===', '!=', '!==', '=', '+=', '-=', '*=', '/=', '%=', '&&', '||'];
@@ -148,7 +147,7 @@ lcObj3 = function(xs) {
   each(xs, function(x) {
     var k, v;
     k = x[0], v = x[1];
-    return acc += ',' + k + ':' + v;
+    return acc += ',' + lc(k) + ':' + lc(v);
   });
   return acc;
 };
@@ -158,7 +157,7 @@ lcObj2 = function(xs) {
     return "";
   } else {
     _ref = xs[0], k = _ref[0], v = _ref[1];
-    return k + ':' + v + lcObj3(xs.slice(1));
+    return lc(k) + ':' + lc(v) + lcObj3(xs.slice(1));
   }
 };
 lcObj1 = function(xs) {
@@ -186,7 +185,7 @@ lcArray2 = function(xs) {
   var acc;
   acc = "";
   each(xs, function(x) {
-    return acc += ',' + x;
+    return acc += ',' + lc(x);
   });
   return acc;
 };
@@ -194,7 +193,7 @@ lcArray1 = function(xs) {
   if (isEmpty(xs)) {
     return "";
   } else {
-    return xs[0] + lcArray2(xs.slice(1));
+    return lc(xs[0]) + lcArray2(xs.slice(1));
   }
 };
 lcArray = function(xs) {
@@ -220,11 +219,11 @@ lcIf3 = function(ps) {
   acc = "";
   each(ps, function(p, i) {
     if (p.length === 1) {
-      return acc += p[0];
+      return acc += lc(p[0]);
     } else if (i === ps.length - 1) {
-      return acc += p[0] + '?' + p[1] + ':' + 'undefined';
+      return acc += lc(p[0]) + '?' + lc(p[1]) + ':' + 'undefined';
     } else {
-      return acc += p[0] + '?' + p[1] + ':';
+      return acc += lc(p[0]) + '?' + lc(p[1]) + ':';
     }
   });
   return acc;
@@ -239,7 +238,7 @@ lcIf = function(xs) {
   if (isEmpty(xs)) {
     return "";
   } else if (xs.length === 1) {
-    return xs[0];
+    return lc(xs[0]);
   } else {
     return lcIf1(xs);
   }
@@ -264,7 +263,7 @@ lcDo1 = function(xs) {
   var acc;
   acc = "";
   each(xs, function(x) {
-    return acc += ',' + x;
+    return acc += ',' + lc(x);
   });
   return acc;
 };
@@ -272,7 +271,7 @@ lcDo = function(xs) {
   if (isEmpty(xs)) {
     return "";
   } else {
-    return xs[0] + lcDo1(xs.slice(1));
+    return lc(xs[0]) + lcDo1(xs.slice(1));
   }
 };
 (function() {

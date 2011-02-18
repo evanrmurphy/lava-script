@@ -97,8 +97,6 @@ test('lc proc #1', lc(['foo']), 'foo()')
 test('lc proc #2', lc(['foo', 'x']), 'foo(x)')
 test('lc proc #3', lc(['foo', 'x', 'y']), 'foo(x,y)')
 
-test('lc atom #1', lc('x'), 'x')
-
 # lc infix
 
 lcInfix1 = (op, xs) ->
@@ -110,7 +108,7 @@ lcInfix1 = (op, xs) ->
 lcInfix = (op, xs) ->
   if isEmpty(xs)
     ""
-  else xs[0] + lcInfix1(op, xs[1..])
+  else lc(xs[0]) + lcInfix1(op, xs[1..])
 
 infixOps = ['+','-','*','/','%',
             '>=','<=','>','<','==','===','!=','!==',
@@ -156,7 +154,7 @@ lcObj3 = (xs) ->
   acc = ""
   each xs, (x) ->
     [k, v] = x
-    acc += ',' + k + ':' + v
+    acc += ',' + lc(k) + ':' + lc(v)
   acc
 
 lcObj2 = (xs) ->
@@ -164,7 +162,7 @@ lcObj2 = (xs) ->
     ""
   else
     [k, v] = xs[0]
-    k + ':' + v + lcObj3(xs[1..])
+    lc(k) + ':' + lc(v) + lcObj3(xs[1..])
 
 lcObj1 = (xs) ->
   lcObj2 pair(xs)
@@ -190,13 +188,13 @@ test('lc obj #4', lc(['obj', 'x', 'y', 'z', ['+', 'x', 'y']]), "{x:y,z:x+y}")
 lcArray2 = (xs) ->
   acc = ""
   each xs, (x) ->
-    acc += ',' + x
+    acc += ',' + lc(x)
   acc
 
 lcArray1 = (xs) ->
   if isEmpty(xs)
     ""
-  else xs[0] + lcArray2(xs[1..])
+  else lc(xs[0]) + lcArray2(xs[1..])
 
 lcArray = (xs) ->
   '[' + lcArray1(xs) + ']'
@@ -220,11 +218,11 @@ lcIf3 = (ps) ->
   acc = ""
   each ps, (p, i) ->
     if p.length == 1
-      acc += p[0]
+      acc += lc(p[0])
     else if i == ps.length-1
-      acc += p[0] + '?' + p[1] + ':' + 'undefined'
+      acc += lc(p[0]) + '?' + lc(p[1]) + ':' + 'undefined'
     else
-      acc += p[0] + '?' + p[1] + ':'
+      acc += lc(p[0]) + '?' + lc(p[1]) + ':'
   acc
 
 lcIf2 = (xs) ->
@@ -237,8 +235,9 @@ lcIf = (xs) ->
   if isEmpty(xs)
     ""
   else if xs.length == 1
-    xs[0]
-  else lcIf1(xs)
+    lc(xs[0])
+  else
+    lcIf1(xs)
 
 (->
   orig = lc
@@ -259,13 +258,13 @@ test('lc if #5', lc(['if', 'x', 'y', 'z', 'a']), "(x?y:z?a:undefined)")
 lcDo1 = (xs) ->
   acc = ""
   each xs, (x) ->
-    acc += ',' + x
+    acc += ',' + lc(x)
   acc
 
 lcDo = (xs) ->
   if isEmpty(xs)
     ""
-  else xs[0] + lcDo1(xs[1..])
+  else lc(xs[0]) + lcDo1(xs[1..])
 
 (->
   orig = lc

@@ -5,10 +5,11 @@
 ### - Unit tests are inline, i.e. functions
 ###   are tested immediately after they're
 ###   defined
-### - It's organized into 2 sections:
+### - It's organized into 3 sections:
 ###    1) Preliminary,
 ###    2) The Compiler
-*/var each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, orig, pair, pr, test, without, _;
+###    3) The Reader
+*/var atom, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, orig, pair, parse, pr, read, readFrom, test, tokenize, without, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -269,3 +270,41 @@ test('lc do #1', lc(['do']), "");
 test('lc do #2', lc(['do', 'x']), "x");
 test('lc do #3', lc(['do', 'x', 'y']), "x,y");
 test('lc do #4', lc(['do', 'x', 'y', 'z']), "x,y,z");
+atom = function(token) {
+  if (token.match(/^\d+\.?$/)) {
+    return parseInt(token);
+  } else if (token.match(/^\d*\.\d+$/)) {
+    return parseFloat(token);
+  } else {
+    return token;
+  }
+};
+readFrom = function(tokens) {
+  var L, token;
+  if (tokens.length === 0) {
+    alert('unexpected EOF while reading');
+  }
+  token = tokens.shift();
+  if ('(' === token) {
+    L = [];
+    while (tokens[0] !== ')') {
+      L.push(readFrom(tokens));
+    }
+    tokens.shift();
+    return L;
+  } else if (')' === token) {
+    return alert('unexpected )');
+  } else {
+    return atom(token);
+  }
+};
+tokenize = function(s) {
+  return _(s.replace('(', ' ( ').replace(')', ' ) ').split(' ')).without('');
+};
+read = function(s) {
+  return readFrom(tokenize(s));
+};
+parse = read;
+test('parse #1', parse('x'), 'x');
+test('parse #2', parse('(x)'), ['x']);
+test('parse #3', parse('(x y)'), ['x', 'y']);

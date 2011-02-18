@@ -5,9 +5,10 @@
 ### - Unit tests are inline, i.e. functions
 ###   are tested immediately after they're
 ###   defined
-### - It's organized into 2 sections:
+### - It's organized into 3 sections:
 ###    1) Preliminary,
 ###    2) The Compiler
+###    3) The Reader
 ###
 
 ## Preliminary
@@ -263,3 +264,40 @@ test('lc do #1', lc(['do']), "")
 test('lc do #2', lc(['do', 'x']), "x")
 test('lc do #3', lc(['do', 'x', 'y']), "x,y")
 test('lc do #4', lc(['do', 'x', 'y', 'z']), "x,y,z")
+
+## The Reader
+
+atom = (token) ->
+  if token.match /^\d+\.?$/
+    parseInt token
+  else if token.match /^\d*\.\d+$/
+    parseFloat token
+  else
+    token
+
+readFrom = (tokens) ->
+  if tokens.length == 0
+    alert 'unexpected EOF while reading'
+  token = tokens.shift()
+  if '(' == token
+    L = []
+    while tokens[0] != ')'
+      L.push(readFrom tokens)
+    tokens.shift() # pop off ')'
+    L
+  else if ')' == token
+    alert 'unexpected )'
+  else
+    atom token
+
+tokenize = (s) ->
+  _(s.replace('(',' ( ').replace(')',' ) ').split(' ')).without('')
+
+read = (s) ->
+  readFrom tokenize(s)
+
+parse = read
+
+test('parse #1', parse('x'), 'x')
+test('parse #2', parse('(x)'), ['x'])
+test('parse #3', parse('(x y)'), ['x', 'y'])

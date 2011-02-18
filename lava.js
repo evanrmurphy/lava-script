@@ -5,11 +5,12 @@
 ### - Unit tests are inline, i.e. functions
 ###   are tested immediately after they're
 ###   defined
-### - It's organized into 3 sections:
+### - It's organized into 4 sections:
 ###    1) Preliminary,
-###    2) The Compiler
-###    3) The Reader
-*/var atom, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, orig, pair, parse, pr, read, readFrom, test, tokenize, without, _;
+###    2) Compiler
+###    3) Reader
+###    4) Interface
+*/var arrayOrig, atom, doOrig, each, ifOrig, infixOps, infixOrig, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, objOrig, pair, parse, pr, procOrig, read, readFrom, test, tokenize, without, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -77,17 +78,18 @@ lcProc1 = function(xs) {
 lcProc = function(f, args) {
   return lc(f) + '(' + lcProc1(args) + ')';
 };
-orig = lc;
+procOrig = lc;
 lc = function(s) {
   if (isList(s)) {
     return lcProc(s[0], s.slice(1));
   } else {
-    return orig(s);
+    return procOrig(s);
   }
 };
 test('lc proc #1', lc(['foo']), 'foo()');
 test('lc proc #2', lc(['foo', 'x']), 'foo(x)');
 test('lc proc #3', lc(['foo', 'x', 'y']), 'foo(x,y)');
+test('lc atom #1', lc('x'), 'x');
 lcInfix1 = function(op, xs) {
   var acc;
   acc = "";
@@ -104,13 +106,13 @@ lcInfix = function(op, xs) {
   }
 };
 infixOps = ['+', '-', '*', '/', '%', '>=', '<=', '>', '<', '==', '===', '!=', '!==', '=', '+=', '-=', '*=', '/=', '%=', '&&', '||'];
-orig = lc;
+infixOrig = lc;
 lc = function(s) {
   var _ref;
   if (isList(s) && (_ref = s[0], __indexOf.call(infixOps, _ref) >= 0)) {
     return lcInfix(s[0], s.slice(1));
   } else {
-    return orig(s);
+    return infixOrig(s);
   }
 };
 test('lc infix #1', lc(['+', 'x', 'y']), "x+y");
@@ -159,12 +161,12 @@ lcObj1 = function(xs) {
 lcObj = function(xs) {
   return '{' + lcObj1(xs) + '}';
 };
-orig = lc;
+objOrig = lc;
 lc = function(s) {
   if (isList(s) && s[0] === 'obj') {
     return lcObj(s.slice(1));
   } else {
-    return orig(s);
+    return objOrig(s);
   }
 };
 test('lc obj #1', lc(['obj']), "{}");
@@ -189,12 +191,12 @@ lcArray1 = function(xs) {
 lcArray = function(xs) {
   return '[' + lcArray1(xs) + ']';
 };
-orig = lc;
+arrayOrig = lc;
 lc = function(s) {
   if (isList(s) && s[0] === 'array') {
     return lcArray(s.slice(1));
   } else {
-    return orig(s);
+    return arrayOrig(s);
   }
 };
 test('lc array #1', lc(['array']), "[]");
@@ -230,12 +232,12 @@ lcIf = function(xs) {
     return lcIf1(xs);
   }
 };
-orig = lc;
+ifOrig = lc;
 lc = function(s) {
   if (isList(s) && s[0] === 'if') {
     return lcIf(s.slice(1));
   } else {
-    return orig(s);
+    return ifOrig(s);
   }
 };
 test('lc if #1', lc(['if']), "");
@@ -258,12 +260,12 @@ lcDo = function(xs) {
     return xs[0] + lcDo1(xs.slice(1));
   }
 };
-orig = lc;
+doOrig = lc;
 lc = function(s) {
   if (isList(s) && s[0] === 'do') {
     return lcDo(s.slice(1));
   } else {
-    return orig(s);
+    return doOrig(s);
   }
 };
 test('lc do #1', lc(['do']), "");
@@ -308,3 +310,9 @@ parse = read;
 test('parse #1', parse('x'), 'x');
 test('parse #2', parse('(x)'), ['x']);
 test('parse #3', parse('(x y)'), ['x', 'y']);
+lava = function(s) {
+  return lc(parse(s));
+};
+test('lava #1', lava('x'), 'x');
+test('lava #2', lava('(+ x y)'), 'x+y');
+test('lava #3', lava('(do x y)'), 'x,y');

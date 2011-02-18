@@ -5,10 +5,11 @@
 ### - Unit tests are inline, i.e. functions
 ###   are tested immediately after they're
 ###   defined
-### - It's organized into 3 sections:
+### - It's organized into 4 sections:
 ###    1) Preliminary,
-###    2) The Compiler
-###    3) The Reader
+###    2) Compiler
+###    3) Reader
+###    4) Interface
 ###
 
 ## Preliminary
@@ -50,7 +51,7 @@ test('pair #1', pair(['a', '1']), [['a', '1']])
 test('pair #2', pair(['a', '1', 'b']), [['a', '1'], ['b']])
 test('pair #3', pair(['a', '1', 'b', '2']), [['a', '1'], ['b', '2']])
 
-## The Compiler (lc)
+## Compiler (lc)
 
 # lc is built up iteratively here, one
 # conditional at a time. lc is defined
@@ -84,15 +85,17 @@ lcProc1 = (xs) ->
 lcProc = (f, args) ->
   lc(f) + '(' + lcProc1(args) + ')'
 
-orig = lc
+procOrig = lc
 lc = (s) ->
   if isList(s)
     lcProc(s[0], s[1..])
-  else orig(s)
+  else procOrig(s)
 
 test('lc proc #1', lc(['foo']), 'foo()')
 test('lc proc #2', lc(['foo', 'x']), 'foo(x)')
 test('lc proc #3', lc(['foo', 'x', 'y']), 'foo(x,y)')
+
+test('lc atom #1', lc('x'), 'x')
 
 # lc infix
 
@@ -112,11 +115,11 @@ infixOps = ['+','-','*','/','%',
             '=','+=','-=','*=','/=','%=',
             '&&','||']
 
-orig = lc
+infixOrig = lc
 lc = (s) ->
   if isList(s) and (s[0] in infixOps)
-      lcInfix(s[0], s[1..])
-  else orig(s)
+    lcInfix(s[0], s[1..])
+  else infixOrig(s)
 
 test('lc infix #1', lc(['+', 'x', 'y']), "x+y")
 test('lc infix #2', lc(['+', 'x', 'y', 'z']), "x+y+z")
@@ -165,11 +168,11 @@ lcObj1 = (xs) ->
 lcObj = (xs) ->
   '{' + lcObj1(xs) + '}'
 
-orig = lc
+objOrig = lc
 lc = (s) ->
   if isList(s) and s[0] is 'obj'
     lcObj(s[1..])
-  else orig(s)
+  else objOrig(s)
 
 test('lc obj #1', lc(['obj']), "{}")
 test('lc obj #2', lc(['obj', 'x', 'y']), "{x:y}")
@@ -192,11 +195,11 @@ lcArray1 = (xs) ->
 lcArray = (xs) ->
   '[' + lcArray1(xs) + ']'
 
-orig = lc
+arrayOrig = lc
 lc = (s) ->
   if isList(s) and s[0] is 'array'
     lcArray(s[1..])
-  else orig(s)
+  else arrayOrig(s)
 
 test('lc array #1', lc(['array']), "[]")
 test('lc array #2', lc(['array', 'x']), "[x]")
@@ -229,11 +232,11 @@ lcIf = (xs) ->
     xs[0]
   else lcIf1(xs)
 
-orig = lc
+ifOrig = lc
 lc = (s) ->
   if isList(s) and s[0] is 'if'
     lcIf(s[1..])
-  else orig(s)
+  else ifOrig(s)
 
 test('lc if #1', lc(['if']), "")
 test('lc if #2', lc(['if', 'x']), "x")
@@ -254,18 +257,18 @@ lcDo = (xs) ->
     ""
   else xs[0] + lcDo1(xs[1..])
 
-orig = lc
+doOrig = lc
 lc = (s) ->
   if isList(s) and s[0] is 'do'
     lcDo(s[1..])
-  else orig(s)
+  else doOrig(s)
 
 test('lc do #1', lc(['do']), "")
 test('lc do #2', lc(['do', 'x']), "x")
 test('lc do #3', lc(['do', 'x', 'y']), "x,y")
 test('lc do #4', lc(['do', 'x', 'y', 'z']), "x,y,z")
 
-## The Reader
+## Reader
 
 atom = (token) ->
   if token.match /^\d+\.?$/
@@ -301,3 +304,11 @@ parse = read
 test('parse #1', parse('x'), 'x')
 test('parse #2', parse('(x)'), ['x'])
 test('parse #3', parse('(x y)'), ['x', 'y'])
+
+## Interface
+
+lava = (s) -> lc parse(s)
+
+test('lava #1', lava('x'), 'x')
+test('lava #2', lava('(+ x y)'), 'x+y')
+test('lava #3', lava('(do x y)'), 'x,y')

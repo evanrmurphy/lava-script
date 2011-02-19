@@ -8,7 +8,6 @@ See [lava.coffee](https://github.com/evanrmurphy/lava-script/blob/master/lava.co
 
 ## Todo
 
-- array and object access (ref)
 - better reader (support strings!)
 - macros
 - syntactic conveniences (like the dot operator)

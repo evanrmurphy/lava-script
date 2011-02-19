@@ -10,7 +10,7 @@
 ###    2) Compiler
 ###    3) Reader
 ###    4) Interface
-*/var atom, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcFn, lcFn1, lcFn2, lcFn3, lcFn4, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, pair, parse, pr, read, readFrom, repl, repl1, repl2, repl3, repl4, repl5, repl6, repl7, repl8, stdin, stdout, test, tokenize, without, _;
+*/var atom, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcDot, lcFn, lcFn1, lcFn2, lcFn3, lcFn4, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, lcRef, pair, parse, pr, read, readFrom, repl, repl1, repl2, repl3, repl4, repl5, repl6, repl7, repl8, stdin, stdout, test, tokenize, without, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -216,6 +216,40 @@ test('lc array #1', lc(['array']), "[]");
 test('lc array #2', lc(['array', 'x']), "[x]");
 test('lc array #3', lc(['array', 'x', 'y']), "[x,y]");
 test('lc array #4', lc(['array', 'x', ['array', 'y']]), "[x,[y]]");
+lcRef = function(xs) {
+  var h, k;
+  h = xs[0], k = xs[1];
+  return lc(h) + '[' + lc(k) + ']';
+};
+(function() {
+  var orig;
+  orig = lc;
+  return lc = function(s) {
+    if (isList(s) && s[0] === 'ref') {
+      return lcRef(s.slice(1));
+    } else {
+      return orig(s);
+    }
+  };
+})();
+test('lc ref #1', lc(['ref', 'x', 'y']), "x[y]");
+lcDot = function(xs) {
+  var h, k;
+  h = xs[0], k = xs[1];
+  return lc(h) + '.' + lc(k);
+};
+(function() {
+  var orig;
+  orig = lc;
+  return lc = function(s) {
+    if (isList(s) && s[0] === 'dot') {
+      return lcDot(s.slice(1));
+    } else {
+      return orig(s);
+    }
+  };
+})();
+test('lc dot #1', lc(['dot', 'x', 'y']), "x.y");
 lcIf3 = function(ps) {
   var acc;
   acc = "";

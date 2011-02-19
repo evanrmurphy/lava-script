@@ -85,6 +85,7 @@ lcProc1 = (xs) ->
     ""
   else lc(xs[0]) + lcProc2(xs[1..])
 
+
 lcProc = (f, args) ->
   lc(f) + '(' + lcProc1(args) + ')'
 
@@ -214,6 +215,38 @@ test('lc array #1', lc(['array']), "[]")
 test('lc array #2', lc(['array', 'x']), "[x]")
 test('lc array #3', lc(['array', 'x', 'y']), "[x,y]")
 test('lc array #4', lc(['array', 'x', ['array', 'y']]), "[x,[y]]")
+
+# lc ref
+
+lcRef = (xs) ->
+  [h, k] = xs
+  lc(h) + '[' + lc(k) + ']'
+
+(->
+  orig = lc
+  lc = (s) ->
+    if isList(s) and s[0] is 'ref'
+      lcRef(s[1..])
+    else orig(s)
+)()
+
+test('lc ref #1', lc(['ref', 'x', 'y']), "x[y]")
+
+# lc dot
+
+lcDot = (xs) ->
+  [h, k] = xs
+  lc(h) + '.' + lc(k)
+
+(->
+  orig = lc
+  lc = (s) ->
+    if isList(s) and s[0] is 'dot'
+      lcDot(s[1..])
+    else orig(s)
+)()
+
+test('lc dot #1', lc(['dot', 'x', 'y']), "x.y")
 
 # lc if
 

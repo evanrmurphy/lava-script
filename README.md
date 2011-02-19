@@ -8,9 +8,8 @@ See [lava.coffee](https://github.com/evanrmurphy/lava-script/blob/master/lava.co
 
 ## Todo
 
-- better reader (support strings!)
+- better reader (bad bugs here; also, support strings!)
 - macros
-- repl
 - syntax conveniences (like the dot operator)
 - pretty-printed output
 - npm packaging

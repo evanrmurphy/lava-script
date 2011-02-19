@@ -322,23 +322,20 @@ atom = (token) ->
   else
     token
 
-readFrom = (tokens) ->
-  if tokens.length == 0
-    alert 'unexpected EOF while reading'
-  token = tokens.shift()
-  if '(' == token
-    L = []
-    while tokens[0] != ')'
-      L.push(readFrom tokens)
-    tokens.shift() # pop off ')'
-    L
-  else if ')' == token
-    alert 'unexpected )'
+readFrom = (ts) ->
+  t = ts.shift()
+  if t == '('
+    acc = []
+    while ts[0] != ')'
+      acc.push readFrom(ts)
+    ts.shift() # pop off ')'
+    acc
   else
-    atom token
+    atom t
 
 tokenize = (s) ->
-  _(s.replace('(',' ( ').replace(')',' ) ').split(' ')).without('')
+  spaced = s.replace(/\(/g,' ( ').replace(/\)/g,' ) ').split(' ')
+  without spaced, ''  # purge of empty string tokens
 
 read = (s) ->
   readFrom tokenize(s)
@@ -348,6 +345,7 @@ parse = read
 test('parse #1', parse('x'), 'x')
 test('parse #2', parse('(x)'), ['x'])
 test('parse #3', parse('(x y)'), ['x', 'y'])
+test('parse #4', parse('((x) y)'), [['x'], 'y'])
 
 ## Interface
 
@@ -356,7 +354,7 @@ lava = (s) -> lc parse(s)
 test('lava #1', lava('x'), 'x')
 test('lava #2', lava('(+ x y)'), 'x+y')
 test('lava #3', lava('(do x y)'), 'x,y')
-test('lava #4', lava('(fn ())'), '(function(){})')
+test('lava #4', lava('(fn (x y) x y)'), '(function(x,y){return x,y;})')
 
 repl = ->
   # used as a guide to write this:

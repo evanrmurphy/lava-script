@@ -334,27 +334,24 @@ atom = function(token) {
     return token;
   }
 };
-readFrom = function(tokens) {
-  var L, token;
-  if (tokens.length === 0) {
-    alert('unexpected EOF while reading');
-  }
-  token = tokens.shift();
-  if ('(' === token) {
-    L = [];
-    while (tokens[0] !== ')') {
-      L.push(readFrom(tokens));
+readFrom = function(ts) {
+  var acc, t;
+  t = ts.shift();
+  if (t === '(') {
+    acc = [];
+    while (ts[0] !== ')') {
+      acc.push(readFrom(ts));
     }
-    tokens.shift();
-    return L;
-  } else if (')' === token) {
-    return alert('unexpected )');
+    ts.shift();
+    return acc;
   } else {
-    return atom(token);
+    return atom(t);
   }
 };
 tokenize = function(s) {
-  return _(s.replace('(', ' ( ').replace(')', ' ) ').split(' ')).without('');
+  var spaced;
+  spaced = s.replace(/\(/g, ' ( ').replace(/\)/g, ' ) ').split(' ');
+  return without(spaced, '');
 };
 read = function(s) {
   return readFrom(tokenize(s));
@@ -363,13 +360,14 @@ parse = read;
 test('parse #1', parse('x'), 'x');
 test('parse #2', parse('(x)'), ['x']);
 test('parse #3', parse('(x y)'), ['x', 'y']);
+test('parse #4', parse('((x) y)'), [['x'], 'y']);
 lava = function(s) {
   return lc(parse(s));
 };
 test('lava #1', lava('x'), 'x');
 test('lava #2', lava('(+ x y)'), 'x+y');
 test('lava #3', lava('(do x y)'), 'x,y');
-test('lava #4', lava('(fn ())'), '(function(){})');
+test('lava #4', lava('(fn (x y) x y)'), '(function(x,y){return x,y;})');
 repl = function() {
   process.stdin.resume();
   process.stdin.setEncoding('utf8');

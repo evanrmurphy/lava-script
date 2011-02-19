@@ -338,7 +338,9 @@ readFrom = (ts) ->
     atom t
 
 tokenize = (s) ->
-  spaced = s.replace(/\(/g,' ( ').replace(/\)/g,' ) ').split(' ')
+  spaced = s.replace( /\(/g , ' ( ')
+            .replace( /\)/g , ' ) ')
+            .split ' '
   without spaced, ''  # purge of empty string tokens
 
 read = (s) ->

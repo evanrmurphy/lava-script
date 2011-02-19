@@ -357,3 +357,22 @@ test('lava #1', lava('x'), 'x')
 test('lava #2', lava('(+ x y)'), 'x+y')
 test('lava #3', lava('(do x y)'), 'x,y')
 test('lava #4', lava('(fn ())'), '(function(){})')
+
+repl = ->
+  # used as a guide to write this:
+  # http://nodejs.org/docs/v0.4.0/api/process.html#process.stdin
+
+  # stdin is paused by default, so this resumes it
+  process.stdin.resume()
+
+  # returns a stream (?) by default; this is to
+  # make it a string instead, which is what
+  # the lava reader needs
+  process.stdin.setEncoding('utf8')
+
+  process.stdout.write 'lava> '
+  process.stdin.on 'data', (chunk) ->
+    process.stdout.write lava(chunk)
+    process.stdout.write '\nlava> '
+
+repl()

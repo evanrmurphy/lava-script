@@ -10,7 +10,7 @@
 ###    2) Compiler
 ###    3) Reader
 ###    4) Interface
-*/var atom, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcFn, lcFn1, lcFn2, lcFn3, lcFn4, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, pair, parse, pr, read, readFrom, test, tokenize, without, _;
+*/var atom, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcFn, lcFn1, lcFn2, lcFn3, lcFn4, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, pair, parse, pr, read, readFrom, repl, test, tokenize, without, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -370,3 +370,13 @@ test('lava #1', lava('x'), 'x');
 test('lava #2', lava('(+ x y)'), 'x+y');
 test('lava #3', lava('(do x y)'), 'x,y');
 test('lava #4', lava('(fn ())'), '(function(){})');
+repl = function() {
+  process.stdin.resume();
+  process.stdin.setEncoding('utf8');
+  process.stdout.write('lava> ');
+  return process.stdin.on('data', function(chunk) {
+    process.stdout.write(lava(chunk));
+    return process.stdout.write('\nlava> ');
+  });
+};
+repl();

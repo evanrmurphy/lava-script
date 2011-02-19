@@ -10,7 +10,7 @@
 ###    2) Compiler
 ###    3) Reader
 ###    4) Interface
-*/var atom, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcFn, lcFn1, lcFn2, lcFn3, lcFn4, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, pair, parse, pr, read, readFrom, repl, test, tokenize, without, _;
+*/var atom, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcFn, lcFn1, lcFn2, lcFn3, lcFn4, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, pair, parse, pr, read, readFrom, repl, repl1, repl2, repl3, repl4, repl5, repl6, repl7, repl8, stdin, stdout, test, tokenize, without, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -33,6 +33,8 @@ pr = function() {
   args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
   return console.log.apply(console, args);
 };
+stdin = process.stdin;
+stdout = process.stdout;
 isList = isArray;
 test('isList #1', isList([]), true);
 test('isList #2', isList([1]), true);
@@ -368,13 +370,34 @@ test('lava #1', lava('x'), 'x');
 test('lava #2', lava('(+ x y)'), 'x+y');
 test('lava #3', lava('(do x y)'), 'x,y');
 test('lava #4', lava('(fn (x y) x y)'), '(function(x,y){return x,y;})');
+repl8 = function(x) {
+  return '> ';
+};
+repl7 = function(x) {
+  return '=> ' + eval(x) + '\n' + repl8(x);
+};
+repl6 = function(x) {
+  return x + '\n' + repl7(x);
+};
+repl5 = function(x) {
+  return stdout.write(repl6(x));
+};
+repl4 = function(x) {
+  return repl5(lava(x));
+};
+repl3 = function() {
+  return stdin.on('data', repl4);
+};
+repl2 = function() {
+  stdout.write('> ');
+  return repl3();
+};
+repl1 = function() {
+  stdin.setEncoding('utf8');
+  return repl2();
+};
 repl = function() {
-  process.stdin.resume();
-  process.stdin.setEncoding('utf8');
-  process.stdout.write('lava> ');
-  return process.stdin.on('data', function(chunk) {
-    process.stdout.write(lava(chunk));
-    return process.stdout.write('\nlava> ');
-  });
+  stdin.resume();
+  return repl1();
 };
 repl();

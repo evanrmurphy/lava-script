@@ -29,6 +29,9 @@ without = _.without
 
 pr = (args...) -> console.log args...
 
+stdin = process.stdin
+stdout = process.stdout
+
 isList = isArray
 
 test('isList #1', isList([]), true)
@@ -357,21 +360,37 @@ test('lava #2', lava('(+ x y)'), 'x+y')
 test('lava #3', lava('(do x y)'), 'x,y')
 test('lava #4', lava('(fn (x y) x y)'), '(function(x,y){return x,y;})')
 
+repl8 = (x) -> '> '
+
+repl7 = (x) ->
+  '=> ' + eval(x) + '\n' + repl8(x)
+
+repl6 = (x) ->
+  x + '\n' + repl7(x)
+
+repl5 = (x) ->
+  stdout.write repl6(x)
+
+repl4 = (x) ->
+  repl5 lava(x)
+
+repl3 = ->
+  stdin.on 'data', repl4
+
+repl2 = ->
+  stdout.write '> '
+  repl3()
+
+repl1 = ->
+  # makes return a string instead of a stream (?)
+  stdin.setEncoding('utf8')
+  repl2()
+
+# used as a guide to write this:
+# http://nodejs.org/docs/v0.4.0/api/process.html#process.stdin
 repl = ->
-  # used as a guide to write this:
-  # http://nodejs.org/docs/v0.4.0/api/process.html#process.stdin
-
   # stdin is paused by default, so this resumes it
-  process.stdin.resume()
-
-  # returns a stream (?) by default; this is to
-  # make it a string instead, which is what
-  # the lava reader needs
-  process.stdin.setEncoding('utf8')
-
-  process.stdout.write 'lava> '
-  process.stdin.on 'data', (chunk) ->
-    process.stdout.write lava(chunk)
-    process.stdout.write '\nlava> '
+  stdin.resume()
+  repl1()
 
 repl()

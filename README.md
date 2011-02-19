@@ -8,10 +8,12 @@ See [lava.coffee](https://github.com/evanrmurphy/lava-script/blob/master/lava.co
 
 ## Todo
 
-- better reader (bad bugs here; also, support strings!)
+- array and object access (ref)
+- better reader (support strings!)
 - macros
-- syntax conveniences (like the dot operator)
+- syntactic conveniences (like the dot operator)
 - pretty-printed output
+- idiomatic output (semi-colon instead of comma)
 - npm packaging
 
 ## The language

@@ -96,7 +96,7 @@ lcInfix1 = function(op, xs) {
   var acc;
   acc = "";
   each(xs, function(x) {
-    return acc += op + x;
+    return acc += op + lc(x);
   });
   return acc;
 };

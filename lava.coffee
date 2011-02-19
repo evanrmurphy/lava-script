@@ -102,7 +102,7 @@ test('lc proc #3', lc(['foo', 'x', 'y']), 'foo(x,y)')
 lcInfix1 = (op, xs) ->
   acc = ""
   each xs, (x) ->
-    acc += op + x
+    acc += op + lc(x)
   acc
 
 lcInfix = (op, xs) ->

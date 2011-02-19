@@ -314,13 +314,14 @@ test('lc fn #6', lc(['fn', ['x', 'y'], 'x', 'y']), "(function(x,y){return x,y;})
 
 ## Reader
 
-atom = (token) ->
-  if token.match /^\d+\.?$/
-    parseInt token
-  else if token.match /^\d*\.\d+$/
-    parseFloat token
+# t stands for token
+atom = (t) ->
+  if t.match /^\d+\.?$/
+    parseInt t
+  else if t.match /^\d*\.\d+$/
+    parseFloat t
   else
-    token
+    t
 
 readFrom = (ts) ->
   t = ts.shift()

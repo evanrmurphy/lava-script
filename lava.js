@@ -325,13 +325,13 @@ test('lc fn #3', lc(['fn', ['x'], 'x']), "(function(x){return x;})");
 test('lc fn #4', lc(['fn', ['x', 'y'], 'x']), "(function(x,y){return x;})");
 test('lc fn #5', lc(['fn', ['x'], 'x', 'y']), "(function(x){return x,y;})");
 test('lc fn #6', lc(['fn', ['x', 'y'], 'x', 'y']), "(function(x,y){return x,y;})");
-atom = function(token) {
-  if (token.match(/^\d+\.?$/)) {
-    return parseInt(token);
-  } else if (token.match(/^\d*\.\d+$/)) {
-    return parseFloat(token);
+atom = function(t) {
+  if (t.match(/^\d+\.?$/)) {
+    return parseInt(t);
+  } else if (t.match(/^\d*\.\d+$/)) {
+    return parseFloat(t);
   } else {
-    return token;
+    return t;
   }
 };
 readFrom = function(ts) {

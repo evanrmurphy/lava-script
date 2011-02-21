@@ -382,9 +382,23 @@ lcMac = function(xs) {
 lc(['mac', 'foo']);
 test('lc mac #1', macros.foo, []);
 macros = {};
-lc(['mac', 'foo', 'body', ['quasiquote', ['bar', ['unquoteSplicing', 'body']]]]);
-test('lc mac #2', macros.foo, ['body', ['quasiquote', ['bar', ['unquoteSplicing', 'body']]]]);
+lc(['mac', 'foo', ['x'], ['quasiquote', ['bar', ['unquote', 'x']]]]);
+test('lc mac #2', macros.foo, [['x'], ['quasiquote', ['bar', ['unquote', 'x']]]]);
 macros = {};
+(function() {
+  var orig;
+  orig = lc;
+  return lc = function(s) {
+    if (isList(s) && s[0] === 'quote') {
+      return s[1];
+    } else {
+      return orig(s);
+    }
+  };
+})();
+test('lc quote #1', lc(['quote', 'x']), 'x');
+test('lc quote #2', lc(['quote', ['x']]), ['x']);
+test('lc quote #3', lc(['quote', ['x', 'y']]), ['x', 'y']);
 atom = function(t) {
   if (t.match(/^\d+\.?$/)) {
     return parseInt(t);

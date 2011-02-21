@@ -348,7 +348,7 @@ test('lc fn #4', lc(['fn', ['x', 'y'], 'x']), "(function(x,y){return x;})")
 test('lc fn #5', lc(['fn', ['x'], 'x', 'y']), "(function(x){return x,y;})")
 test('lc fn #6', lc(['fn', ['x', 'y'], 'x', 'y']), "(function(x,y){return x,y;})")
 
-# lc macros
+# lc mac
 
 macros = {}
 
@@ -370,9 +370,23 @@ lc(['mac', 'foo'])
 test('lc mac #1', macros.foo, [])
 macros = {}
 
-lc(['mac', 'foo', 'body', ['quasiquote', ['bar', ['unquoteSplicing', 'body']]]])
-test('lc mac #2', macros.foo, ['body', ['quasiquote', ['bar', ['unquoteSplicing', 'body']]]])
+lc(['mac', 'foo', ['x'], ['quasiquote', ['bar', ['unquote', 'x']]]])
+test('lc mac #2', macros.foo, [['x'], ['quasiquote', ['bar', ['unquote', 'x']]]])
 macros = {}
+
+# lc quote
+
+(->
+  orig = lc
+  lc = (s) ->
+    if isList(s) and s[0] is 'quote'
+      s[1]
+    else orig(s)
+)()
+
+test('lc quote #1', lc(['quote', 'x']), 'x')
+test('lc quote #2', lc(['quote', ['x']]), ['x'])
+test('lc quote #3', lc(['quote', ['x', 'y']]), ['x', 'y'])
 
 ## Reader
 

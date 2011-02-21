@@ -2,11 +2,9 @@
 
 A lispy language that compiles into JavaScript.
 
-## The code
-
-See [lava.coffee](https://github.com/evanrmurphy/lava-script/blob/master/lava.coffee).
-
 ## Todo
+
+LavaScript in active development but still incomplete. It needs:
 
 - better reader (support strings!)
 - macros
@@ -14,6 +12,7 @@ See [lava.coffee](https://github.com/evanrmurphy/lava-script/blob/master/lava.co
 - pretty-printed output
 - idiomatic output (semi-colon instead of comma)
 - npm packaging
+
 
 ## The language
 

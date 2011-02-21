@@ -62,9 +62,9 @@ LS on the left, JS on the right in the examples below.
     (.bar foo 1 2)             foo.bar(1, 2)
     (.bar (foo 1 2))           foo.bar(1, 2)
 
-    (.click ($ "a")            $("a").click(function() {
-      (fn ()                     return alert("clicked");
-        (alert "clicked")))    })();
+    (.click ($ "a") (fn ()     $("a").click(function() {
+      (alert "clicked")))        return alert("clicked");
+                               })();
 
 ### Functions
   
@@ -86,8 +86,8 @@ LS on the left, JS on the right in the examples below.
 
 ### Macros
 
-    (mac $ (selector . args)
-      `(.. (jQuery ,selector) ,@args))
+    (mac $ (selector args...)
+      (.. (jQuery selector) @args))
 
     ($ "a" click (fn ()        jQuery("a").click(function() {
       (alert "clicked"))         return alert("clicked");

@@ -4,7 +4,7 @@ A lispy language that compiles into JavaScript.
 
 ## Todo
 
-LavaScript in active development but still incomplete. It needs:
+LavaScript is still incomplete. It needs:
 
 - better reader (support strings!)
 - macros

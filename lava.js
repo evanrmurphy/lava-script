@@ -10,7 +10,7 @@
 ###    2) Compiler
 ###    3) Reader
 ###    4) Interface
-*/var atom, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcDot, lcFn, lcFn1, lcFn2, lcFn3, lcFn4, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcMac, lcMac1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, lcRef, macros, pair, parse, pr, read, readFrom, repl, repl1, repl2, repl3, repl4, repl5, repl6, repl7, repl8, stdin, stdout, test, tokenize, without, _;
+*/var atom, bind, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcDot, lcFn, lcFn1, lcFn2, lcFn3, lcFn4, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcMac, lcMac1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, lcRef, macroExpand, macroExpand1, macros, pair, parse, pr, read, readFrom, repl, repl1, repl2, repl3, repl4, repl5, repl6, repl7, repl8, stdin, stdout, test, tokenize, without, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -382,8 +382,14 @@ lcMac = function(xs) {
 lc(['mac', 'foo']);
 test('lc mac #1', macros.foo, []);
 macros = {};
-lc(['mac', 'foo', ['x'], ['quasiquote', ['bar', ['unquote', 'x']]]]);
-test('lc mac #2', macros.foo, [['x'], ['quasiquote', ['bar', ['unquote', 'x']]]]);
+lc(['mac', 'foo', ['x'], 'x']);
+test('lc mac #2', macros.foo, [['x'], 'x']);
+macros = {};
+lc(['mac', 'foo', ['x', 'y'], 'x']);
+test('lc mac #3', macros.foo, [['x', 'y'], 'x']);
+macros = {};
+lc(['mac', 'foo', ['x', 'y'], ['x', 'y']]);
+test('lc mac #4', macros.foo, [['x', 'y'], ['x', 'y']]);
 macros = {};
 (function() {
   var orig;
@@ -399,6 +405,73 @@ macros = {};
 test('lc quote #1', lc(['quote', 'x']), 'x');
 test('lc quote #2', lc(['quote', ['x']]), ['x']);
 test('lc quote #3', lc(['quote', ['x', 'y']]), ['x', 'y']);
+bind = function(parms, args, env) {
+  if (env == null) {
+    env = {};
+  }
+  each(parms, function(parm, i) {
+    return env[parm] = args[i];
+  });
+  return env;
+};
+test('bind #1', bind([], []), {});
+test('bind #2', bind(['x'], ['y']), {
+  'x': 'y'
+});
+test('bind #3', bind(['x', 'z'], ['y', 'a']), {
+  'x': 'y',
+  'z': 'a'
+});
+macroExpand1 = function(x, env) {
+  var acc;
+  if (isAtom(x)) {
+    if (x in env) {
+      return env[x];
+    } else {
+      return x;
+    }
+  } else {
+    acc = [];
+    each(x, function(elt) {
+      return acc.push(macroExpand1(elt, env));
+    });
+    return acc;
+  }
+};
+test('macroExpand1 #1', macroExpand1('x', {}), 'x');
+test('macroExpand1 #2', macroExpand1('x', {
+  'x': 'y'
+}), 'y');
+test('macroExpand1 #3', macroExpand1('x', {
+  'x': ['a', 'b']
+}), ['a', 'b']);
+test('macroExpand1 #4', macroExpand1(['x', 'y'], {}), ['x', 'y']);
+test('macroExpand1 #5', macroExpand1(['x', 'y'], {
+  'x': 'y'
+}), ['y', 'y']);
+test('macroExpand1 #6', macroExpand1(['x', ['y', 'z']], {
+  'z': 'a'
+}), ['x', ['y', 'a']]);
+macroExpand = function(name, args) {
+  var body, env, parms, _ref;
+  _ref = macros[name], parms = _ref[0], body = _ref[1];
+  env = bind(parms, args);
+  return macroExpand1(body, env);
+};
+(function() {
+  var orig;
+  orig = lc;
+  return lc = function(s) {
+    if (isList(s) && (s[0] in macros)) {
+      return lc(macroExpand(s[0], s.slice(1)));
+    } else {
+      return orig(s);
+    }
+  };
+})();
+lc(['mac', 'foo', ['x'], 'x']);
+test('lc macro-expand #1', lc(['foo', 'y']), 'y');
+macros = {};
 atom = function(t) {
   if (t.match(/^\d+\.?$/)) {
     return parseInt(t);
@@ -442,6 +515,9 @@ test('lava #1', lava('x'), 'x');
 test('lava #2', lava('(+ x y)'), 'x+y');
 test('lava #3', lava('(do x y)'), 'x,y');
 test('lava #4', lava('(fn (x y) x y)'), '(function(x,y){return x,y;})');
+lava("(mac let1 (var val body)        ((fn (var) body) val))");
+test('lava #5', lava('(let1 x 5 x)'), '(function(x){return x;})(5)');
+macros = {};
 repl8 = function(x) {
   return '> ';
 };

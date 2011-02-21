@@ -356,7 +356,7 @@ lcMac1 = (name, definition) ->
   macros[name] = definition
 
 lcMac = (xs) ->
-  lcMac1 xs[0], xs[1..]
+  lcMac1 xs[0], xs[1..] # xs[1..]
 
 (->
   orig = lc
@@ -370,8 +370,16 @@ lc(['mac', 'foo'])
 test('lc mac #1', macros.foo, [])
 macros = {}
 
-lc(['mac', 'foo', ['x'], ['quasiquote', ['bar', ['unquote', 'x']]]])
-test('lc mac #2', macros.foo, [['x'], ['quasiquote', ['bar', ['unquote', 'x']]]])
+lc(['mac', 'foo', ['x'], 'x'])
+test('lc mac #2', macros.foo, [['x'], 'x'])
+macros = {}
+
+lc(['mac', 'foo', ['x', 'y'], 'x'])
+test('lc mac #3', macros.foo, [['x', 'y'], 'x'])
+macros = {}
+
+lc(['mac', 'foo', ['x', 'y'], ['x', 'y']])
+test('lc mac #4', macros.foo, [['x', 'y'], ['x', 'y']])
 macros = {}
 
 # lc quote
@@ -387,6 +395,50 @@ macros = {}
 test('lc quote #1', lc(['quote', 'x']), 'x')
 test('lc quote #2', lc(['quote', ['x']]), ['x'])
 test('lc quote #3', lc(['quote', ['x', 'y']]), ['x', 'y'])
+
+# lc macro-expand
+
+bind = (parms, args, env={}) ->
+  each parms, (parm, i) ->
+    env[parm] = args[i]
+  env
+
+test('bind #1', bind([], []), {})
+test('bind #2', bind(['x'], ['y']), {'x':'y'})
+test('bind #3', bind(['x', 'z'], ['y', 'a']), {'x':'y', 'z':'a'})
+
+macroExpand1 = (x, env) ->
+  if isAtom x
+    if (x of env) then env[x] else x
+  else
+    acc = []
+    each x, (elt) ->
+      acc.push macroExpand1(elt, env)
+    acc
+
+test('macroExpand1 #1', macroExpand1('x', {}), 'x')
+test('macroExpand1 #2', macroExpand1('x', {'x':'y'}), 'y')
+test('macroExpand1 #3', macroExpand1('x', {'x': ['a','b'] }), ['a','b'])
+test('macroExpand1 #4', macroExpand1(['x', 'y'], {}), ['x','y'])
+test('macroExpand1 #5', macroExpand1(['x', 'y'], {'x':'y'}), ['y','y'])
+test('macroExpand1 #6', macroExpand1(['x', ['y', 'z']], {'z':'a'}), ['x', ['y', 'a']])
+
+macroExpand = (name, args) ->
+  [parms, body] = macros[name]
+  env = bind(parms, args)
+  macroExpand1 body, env
+
+(->
+  orig = lc
+  lc = (s) ->
+    if isList(s) and (s[0] of macros)
+      lc macroExpand(s[0], s[1..])
+    else orig(s)
+)()
+
+lc(['mac', 'foo', ['x'], 'x'])
+test('lc macro-expand #1', lc(['foo', 'y']), 'y')
+macros = {}
 
 ## Reader
 
@@ -434,6 +486,11 @@ test('lava #1', lava('x'), 'x')
 test('lava #2', lava('(+ x y)'), 'x+y')
 test('lava #3', lava('(do x y)'), 'x,y')
 test('lava #4', lava('(fn (x y) x y)'), '(function(x,y){return x,y;})')
+
+lava("(mac let1 (var val body)
+        ((fn (var) body) val))")
+test('lava #5', lava('(let1 x 5 x)'), '(function(x){return x;})(5)')
+macros = {}
 
 repl8 = (x) -> '> '
 

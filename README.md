@@ -8,11 +8,10 @@ LavaScript is still incomplete. It needs:
 
 - better reader (support strings!)
 - macros
+- npm packaging
 - syntactic conveniences (like the dot operator)
 - pretty-printed output
 - idiomatic output (semi-colon instead of comma)
-- npm packaging
-
 
 ## The language
 

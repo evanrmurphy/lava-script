@@ -348,6 +348,32 @@ test('lc fn #4', lc(['fn', ['x', 'y'], 'x']), "(function(x,y){return x;})")
 test('lc fn #5', lc(['fn', ['x'], 'x', 'y']), "(function(x){return x,y;})")
 test('lc fn #6', lc(['fn', ['x', 'y'], 'x', 'y']), "(function(x,y){return x,y;})")
 
+# lc macros
+
+macros = {}
+
+lcMac1 = (name, definition) ->
+  macros[name] = definition
+
+lcMac = (xs) ->
+  lcMac1 xs[0], xs[1..]
+
+(->
+  orig = lc
+  lc = (s) ->
+    if isList(s) and s[0] is 'mac'
+      lcMac(s[1..])
+    else orig(s)
+)()
+
+lc(['mac', 'foo'])
+test('lc mac #1', macros.foo, [])
+macros = {}
+
+lc(['mac', 'foo', 'body', ['quasiquote', ['bar', ['unquoteSplicing', 'body']]]])
+test('lc mac #2', macros.foo, ['body', ['quasiquote', ['bar', ['unquoteSplicing', 'body']]]])
+macros = {}
+
 ## Reader
 
 # t stands for token

@@ -10,7 +10,7 @@
 ###    2) Compiler
 ###    3) Reader
 ###    4) Interface
-*/var atom, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcDot, lcFn, lcFn1, lcFn2, lcFn3, lcFn4, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, lcRef, pair, parse, pr, read, readFrom, repl, repl1, repl2, repl3, repl4, repl5, repl6, repl7, repl8, stdin, stdout, test, tokenize, without, _;
+*/var atom, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcDot, lcFn, lcFn1, lcFn2, lcFn3, lcFn4, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcMac, lcMac1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, lcRef, macros, pair, parse, pr, read, readFrom, repl, repl1, repl2, repl3, repl4, repl5, repl6, repl7, repl8, stdin, stdout, test, tokenize, without, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
   for (var i = 0, l = this.length; i < l; i++) {
     if (this[i] === item) return i;
@@ -361,6 +361,30 @@ test('lc fn #3', lc(['fn', ['x'], 'x']), "(function(x){return x;})");
 test('lc fn #4', lc(['fn', ['x', 'y'], 'x']), "(function(x,y){return x;})");
 test('lc fn #5', lc(['fn', ['x'], 'x', 'y']), "(function(x){return x,y;})");
 test('lc fn #6', lc(['fn', ['x', 'y'], 'x', 'y']), "(function(x,y){return x,y;})");
+macros = {};
+lcMac1 = function(name, definition) {
+  return macros[name] = definition;
+};
+lcMac = function(xs) {
+  return lcMac1(xs[0], xs.slice(1));
+};
+(function() {
+  var orig;
+  orig = lc;
+  return lc = function(s) {
+    if (isList(s) && s[0] === 'mac') {
+      return lcMac(s.slice(1));
+    } else {
+      return orig(s);
+    }
+  };
+})();
+lc(['mac', 'foo']);
+test('lc mac #1', macros.foo, []);
+macros = {};
+lc(['mac', 'foo', 'body', ['quasiquote', ['bar', ['unquoteSplicing', 'body']]]]);
+test('lc mac #2', macros.foo, ['body', ['quasiquote', ['bar', ['unquoteSplicing', 'body']]]]);
+macros = {};
 atom = function(t) {
   if (t.match(/^\d+\.?$/)) {
     return parseInt(t);

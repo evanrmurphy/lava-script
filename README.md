@@ -6,8 +6,8 @@ A lispy language that compiles into JavaScript.
 
 LavaScript is still incomplete. It needs:
 
-- better reader (support strings!)
 - macros
+- better reader (support strings!)
 - npm packaging
 - syntactic conveniences (like the dot operator)
 - pretty-printed output

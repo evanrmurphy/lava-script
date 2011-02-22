@@ -14,5 +14,8 @@ LavaScript is incomplete. It still needs:
 - better reader (support strings!)
 - npm packaging
 - syntactic conveniences (like the dot operator)
+- more sophisticated macros, quasiquote or
+  compile-time evaluation? see [arc forum
+  thread](http://arclanguage.org/item?id=13740)
 - pretty-printed output
 - idiomatic output (semi-colon instead of comma)

@@ -23,7 +23,7 @@ LavaScript is incomplete. It still needs:
 
 ## LavaScript Challenge
 
-We're not there yet, but this is LavaScript's hypothetical entry into the [Arc Challenge](http://arclanguage.org/item?id=722).
+We're not there yet, but this would be LavaScript's entry into the [Arc Challenge](http://arclanguage.org/item?id=722), once the language gets sufficiently developed:
 
     ($ (fn ()
       (.html ($ 'body)
@@ -37,7 +37,7 @@ We're not there yet, but this is LavaScript's hypothetical entry into the [Arc C
           (.html ($ 'body)
             (+ "you said: " said))))))))
 
-It depends on jQuery and a hypthetical HTML library that can generate the string '<tag attr1="val1">body</tag>' from (<tag> attr1 'val1 "body"). The JavaScript output would be:
+And the JavaScript output would be:
 
     $(function() {
       $('body').html(
@@ -52,3 +52,6 @@ It depends on jQuery and a hypthetical HTML library that can generate the string
         });
       });
     });
+
+It depends on jQuery and a hypothetical HTML library that can generate strings like '<tag attr1="val1">body</tag>' from calls like (<tag> attr1 'val1 "body").
+

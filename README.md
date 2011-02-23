@@ -30,7 +30,7 @@ We're not there yet, but this would be LavaScript's entry into the [Arc Challeng
         (+ (<input>)
            (<button> "submit")))
       (.click ($ 'button) (fn ()
-        (= said (. ($ 'input) (val)))
+        (= said (.val ($ 'input)))
         (.html ($ 'body)
           (<a> href '#))
         (.click ($ 'a) (fn ()

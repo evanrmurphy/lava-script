@@ -53,5 +53,5 @@ And the JavaScript output would be:
       });
     });
 
-It depends on jQuery and a hypothetical HTML library that can generate strings like '<tag attr1="val1">body</tag>' from calls like (<tag> attr1 'val1 "body").
+It depends on jQuery and a hypothetical HTML library that can generate strings like `'<tag attr1="val1">body</tag>'` from calls like `(<tag> attr1 'val1 "body")`.
 

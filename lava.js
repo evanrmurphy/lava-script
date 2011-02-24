@@ -7,8 +7,8 @@
 ###   defined
 ### - It's organized into 4 sections:
 ###    1) Preliminary,
-###    2) Compiler
-###    3) Reader
+###    2) Reader
+###    3) Compiler
 ###    4) Interface
 */var atom, bind, each, infixOps, isArray, isAtom, isEmpty, isEqual, isList, lava, lc, lcArray, lcArray1, lcArray2, lcDo, lcDo1, lcDot, lcFn, lcFn1, lcFn2, lcFn3, lcFn4, lcIf, lcIf1, lcIf2, lcIf3, lcInfix, lcInfix1, lcMac, lcMac1, lcObj, lcObj1, lcObj2, lcObj3, lcProc, lcProc1, lcProc2, lcRef, macroExpand, macroExpand1, macros, pair, parse, pr, read, readFrom, repl, repl1, repl2, repl3, repl4, repl5, repl6, repl7, repl8, stdin, stdout, test, tokenize, without, _;
 var __slice = Array.prototype.slice, __indexOf = Array.prototype.indexOf || function(item) {
@@ -56,12 +56,52 @@ pair = function(xs) {
 test('pair #1', pair(['a', '1']), [['a', '1']]);
 test('pair #2', pair(['a', '1', 'b']), [['a', '1'], ['b']]);
 test('pair #3', pair(['a', '1', 'b', '2']), [['a', '1'], ['b', '2']]);
+atom = function(t) {
+  if (t.match(/^\d+\.?$/)) {
+    return parseInt(t);
+  } else if (t.match(/^\d*\.\d+$/)) {
+    return parseFloat(t);
+  } else {
+    return t;
+  }
+};
+readFrom = function(ts) {
+  var acc, t;
+  t = ts.shift();
+  if (t === '(') {
+    acc = [];
+    while (ts[0] !== ')') {
+      acc.push(readFrom(ts));
+    }
+    ts.shift();
+    return acc;
+  } else {
+    return atom(t);
+  }
+};
+tokenize = function(s) {
+  var spaced;
+  spaced = s.replace(/\(/g, ' ( ').replace(/\)/g, ' ) ').split(' ');
+  return without(spaced, '');
+};
+read = function(s) {
+  return readFrom(tokenize(s));
+};
+parse = read;
+test('parse #1', parse('x'), 'x');
+test('parse #2', parse('(x)'), ['x']);
+test('parse #3', parse('(x y)'), ['x', 'y']);
+test('parse #4', parse('((x) y)'), [['x'], 'y']);
+lc = function() {};
+lava = function(s) {
+  return lc(parse(s));
+};
 lc = function(s) {
   if (isAtom(s)) {
     return s;
   }
 };
-test('lc atom #1', lc('x'), 'x');
+test('atom #1', lava('x'), 'x');
 lcProc2 = function(xs) {
   var acc;
   acc = "";
@@ -91,9 +131,9 @@ lcProc = function(f, args) {
     }
   };
 })();
-test('lc proc #1', lc(['foo']), 'foo()');
-test('lc proc #2', lc(['foo', 'x']), 'foo(x)');
-test('lc proc #3', lc(['foo', 'x', 'y']), 'foo(x,y)');
+test('proc #1', lava('(foo)'), 'foo()');
+test('proc #2', lava('(foo x)'), 'foo(x)');
+test('proc #3', lava('(foo x y)'), 'foo(x,y)');
 lcInfix1 = function(op, xs) {
   var acc;
   acc = "";
@@ -122,27 +162,27 @@ infixOps = ['+', '-', '*', '/', '%', '>=', '<=', '>', '<', '==', '===', '!=', '!
     }
   };
 })();
-test('lc infix #1', lc(['+', 'x', 'y']), "x+y");
-test('lc infix #2', lc(['+', 'x', 'y', 'z']), "x+y+z");
-test('lc infix #3', lc(['-', 'x', 'y']), "x-y");
-test('lc infix #4', lc(['*', 'x', 'y']), "x*y");
-test('lc infix #5', lc(['%', 'x', 'y']), "x%y");
-test('lc infix #6', lc(['>=', 'x', 'y']), "x>=y");
-test('lc infix #7', lc(['<=', 'x', 'y']), "x<=y");
-test('lc infix #8', lc(['>', 'x', 'y']), "x>y");
-test('lc infix #9', lc(['<', 'x', 'y']), "x<y");
-test('lc infix #10', lc(['==', 'x', 'y']), "x==y");
-test('lc infix #11', lc(['===', 'x', 'y']), "x===y");
-test('lc infix #12', lc(['!=', 'x', 'y']), "x!=y");
-test('lc infix #13', lc(['!==', 'x', 'y']), "x!==y");
-test('lc infix #14', lc(['=', 'x', 'y']), "x=y");
-test('lc infix #15', lc(['+=', 'x', 'y']), "x+=y");
-test('lc infix #16', lc(['-=', 'x', 'y']), "x-=y");
-test('lc infix #17', lc(['*=', 'x', 'y']), "x*=y");
-test('lc infix #18', lc(['/=', 'x', 'y']), "x/=y");
-test('lc infix #19', lc(['%=', 'x', 'y']), "x%=y");
-test('lc infix #20', lc(['&&', 'x', 'y']), "x&&y");
-test('lc infix #21', lc(['||', 'x', 'y']), "x||y");
+test('infix #1', lava('(+ x y)'), "x+y");
+test('infix #2', lava('(+ x y z)'), "x+y+z");
+test('infix #3', lava('(- x y)'), "x-y");
+test('infix #4', lava('(* x y)'), "x*y");
+test('infix #5', lava('(% x y)'), "x%y");
+test('infix #6', lava('(>= x y)'), "x>=y");
+test('infix #7', lava('(<= x y)'), "x<=y");
+test('infix #8', lava('(> x y)'), "x>y");
+test('infix #9', lava('(< x y)'), "x<y");
+test('infix #10', lava('(== x y)'), "x==y");
+test('infix #11', lava('(=== x y)'), "x===y");
+test('infix #12', lava('(!= x y)'), "x!=y");
+test('infix #13', lava('(!== x y)'), "x!==y");
+test('infix #14', lava('(= x y)'), "x=y");
+test('infix #15', lava('(+= x y)'), "x+=y");
+test('infix #16', lava('(-= x y)'), "x-=y");
+test('infix #17', lava('(*= x y)'), "x*=y");
+test('infix #18', lava('(/= x y)'), "x/=y");
+test('infix #19', lava('(%= x y)'), "x%=y");
+test('infix #20', lava('(&& x y)'), "x&&y");
+test('infix #21', lava('(|| x y)'), "x||y");
 lcObj3 = function(xs) {
   var acc;
   acc = "";
@@ -179,10 +219,10 @@ lcObj = function(xs) {
     }
   };
 })();
-test('lc obj #1', lc(['obj']), "{}");
-test('lc obj #2', lc(['obj', 'x', 'y']), "{x:y}");
-test('lc obj #3', lc(['obj', 'x', 'y', 'z', 'a']), "{x:y,z:a}");
-test('lc obj #4', lc(['obj', 'x', 'y', 'z', ['+', 'x', 'y']]), "{x:y,z:x+y}");
+test('obj #1', lava('(obj)'), "{}");
+test('obj #2', lava('(obj x y)'), "{x:y}");
+test('obj #3', lava('(obj x y z a)'), "{x:y,z:a}");
+test('obj #4', lava('(obj x y z (+ x y))'), "{x:y,z:x+y}");
 lcArray2 = function(xs) {
   var acc;
   acc = "";
@@ -212,10 +252,10 @@ lcArray = function(xs) {
     }
   };
 })();
-test('lc array #1', lc(['array']), "[]");
-test('lc array #2', lc(['array', 'x']), "[x]");
-test('lc array #3', lc(['array', 'x', 'y']), "[x,y]");
-test('lc array #4', lc(['array', 'x', ['array', 'y']]), "[x,[y]]");
+test('array #1', lava('(array)'), "[]");
+test('array #2', lava('(array x)'), "[x]");
+test('array #3', lava('(array x y)'), "[x,y]");
+test('array #4', lava('(array x (array y))'), "[x,[y]]");
 lcRef = function(xs) {
   var h, k;
   h = xs[0], k = xs[1];
@@ -232,7 +272,7 @@ lcRef = function(xs) {
     }
   };
 })();
-test('lc ref #1', lc(['ref', 'x', 'y']), "x[y]");
+test('ref #1', lava('(ref x y)'), "x[y]");
 lcDot = function(xs) {
   var h, k;
   h = xs[0], k = xs[1];
@@ -249,7 +289,7 @@ lcDot = function(xs) {
     }
   };
 })();
-test('lc dot #1', lc(['dot', 'x', 'y']), "x.y");
+test('dot #1', lava('(dot x y)'), "x.y");
 lcIf3 = function(ps) {
   var acc;
   acc = "";
@@ -290,11 +330,11 @@ lcIf = function(xs) {
     }
   };
 })();
-test('lc if #1', lc(['if']), "");
-test('lc if #2', lc(['if', 'x']), "x");
-test('lc if #3', lc(['if', 'x', 'y']), "(x?y:undefined)");
-test('lc if #4', lc(['if', 'x', 'y', 'z']), "(x?y:z)");
-test('lc if #5', lc(['if', 'x', 'y', 'z', 'a']), "(x?y:z?a:undefined)");
+test('if #1', lava('(if)'), "");
+test('if #2', lava('(if x)'), "x");
+test('if #3', lava('(if x y)'), "(x?y:undefined)");
+test('if #4', lava('(if x y z)'), "(x?y:z)");
+test('if #5', lava('(if x y z a)'), "(x?y:z?a:undefined)");
 lcDo1 = function(xs) {
   var acc;
   acc = "";
@@ -321,10 +361,10 @@ lcDo = function(xs) {
     }
   };
 })();
-test('lc do #1', lc(['do']), "");
-test('lc do #2', lc(['do', 'x']), "x");
-test('lc do #3', lc(['do', 'x', 'y']), "x,y");
-test('lc do #4', lc(['do', 'x', 'y', 'z']), "x,y,z");
+test('do #1', lava('(do)'), "");
+test('do #2', lava('(do x)'), "x");
+test('do #3', lava('(do x y)'), "x,y");
+test('do #4', lava('(do x y z)'), "x,y,z");
 lcFn4 = function(xs) {
   if (isEmpty(xs)) {
     return "";
@@ -355,12 +395,12 @@ lcFn = function(xs) {
     }
   };
 })();
-test('lc fn #1', lc(['fn', []]), "(function(){})");
-test('lc fn #2', lc(['fn', ['x']]), "(function(x){})");
-test('lc fn #3', lc(['fn', ['x'], 'x']), "(function(x){return x;})");
-test('lc fn #4', lc(['fn', ['x', 'y'], 'x']), "(function(x,y){return x;})");
-test('lc fn #5', lc(['fn', ['x'], 'x', 'y']), "(function(x){return x,y;})");
-test('lc fn #6', lc(['fn', ['x', 'y'], 'x', 'y']), "(function(x,y){return x,y;})");
+test('fn #1', lava('(fn ())'), "(function(){})");
+test('fn #2', lava('(fn (x))'), "(function(x){})");
+test('fn #3', lava('(fn (x) x)'), "(function(x){return x;})");
+test('fn #4', lava('(fn (x y) x)'), "(function(x,y){return x;})");
+test('fn #5', lava('(fn (x) x y)'), "(function(x){return x,y;})");
+test('fn #6', lava('(fn (x y) x y)'), "(function(x,y){return x,y;})");
 macros = {};
 lcMac1 = function(name, definition) {
   return macros[name] = definition;
@@ -380,16 +420,16 @@ lcMac = function(xs) {
   };
 })();
 lc(['mac', 'foo']);
-test('lc mac #1', macros.foo, []);
+test('mac #1', macros.foo, []);
 macros = {};
 lc(['mac', 'foo', ['x'], 'x']);
-test('lc mac #2', macros.foo, [['x'], 'x']);
+test('mac #2', macros.foo, [['x'], 'x']);
 macros = {};
 lc(['mac', 'foo', ['x', 'y'], 'x']);
-test('lc mac #3', macros.foo, [['x', 'y'], 'x']);
+test('mac #3', macros.foo, [['x', 'y'], 'x']);
 macros = {};
 lc(['mac', 'foo', ['x', 'y'], ['x', 'y']]);
-test('lc mac #4', macros.foo, [['x', 'y'], ['x', 'y']]);
+test('mac #4', macros.foo, [['x', 'y'], ['x', 'y']]);
 macros = {};
 (function() {
   var orig;
@@ -402,9 +442,9 @@ macros = {};
     }
   };
 })();
-test('lc quote #1', lc(['quote', 'x']), 'x');
-test('lc quote #2', lc(['quote', ['x']]), ['x']);
-test('lc quote #3', lc(['quote', ['x', 'y']]), ['x', 'y']);
+test('quote #1', lc(['quote', 'x']), 'x');
+test('quote #2', lc(['quote', ['x']]), ['x']);
+test('quote #3', lc(['quote', ['x', 'y']]), ['x', 'y']);
 bind = function(parms, args, env) {
   if (env == null) {
     env = {};
@@ -470,44 +510,8 @@ macroExpand = function(name, args) {
   };
 })();
 lc(['mac', 'foo', ['x'], 'x']);
-test('lc macro-expand #1', lc(['foo', 'y']), 'y');
+test('macro-expand #1', lc(['foo', 'y']), 'y');
 macros = {};
-atom = function(t) {
-  if (t.match(/^\d+\.?$/)) {
-    return parseInt(t);
-  } else if (t.match(/^\d*\.\d+$/)) {
-    return parseFloat(t);
-  } else {
-    return t;
-  }
-};
-readFrom = function(ts) {
-  var acc, t;
-  t = ts.shift();
-  if (t === '(') {
-    acc = [];
-    while (ts[0] !== ')') {
-      acc.push(readFrom(ts));
-    }
-    ts.shift();
-    return acc;
-  } else {
-    return atom(t);
-  }
-};
-tokenize = function(s) {
-  var spaced;
-  spaced = s.replace(/\(/g, ' ( ').replace(/\)/g, ' ) ').split(' ');
-  return without(spaced, '');
-};
-read = function(s) {
-  return readFrom(tokenize(s));
-};
-parse = read;
-test('parse #1', parse('x'), 'x');
-test('parse #2', parse('(x)'), ['x']);
-test('parse #3', parse('(x y)'), ['x', 'y']);
-test('parse #4', parse('((x) y)'), [['x'], 'y']);
 lava = function(s) {
   return lc(parse(s));
 };

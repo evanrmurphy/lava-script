@@ -15,6 +15,8 @@ LavaScript is incomplete. It still needs:
 - better reader (support strings!)
 - npm packaging
 - syntactic conveniences (like the dot operator)
+- access to other features of javascript,
+  like loops and try/catch
 - more sophisticated macros, quasiquote or
   compile-time evaluation? see [arc forum
   thread](http://arclanguage.org/item?id=13740)

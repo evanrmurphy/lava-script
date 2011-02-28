@@ -14,7 +14,13 @@ LavaScript is incomplete. It still needs:
 - rest parameters and unquote-splicing
 - better reader (support strings!)
 - npm packaging
-- syntactic conveniences (like the dot operator)
+- syntactic conveniences
+
+        [1 2 3]     [1,2,3]
+        {a 1 b 2}   {a:1,b:2}
+        (.k h)      h.k
+        ([k] h)     h[k]
+
 - access to other features of javascript,
   like loops and try/catch
 - more sophisticated macros, quasiquote or

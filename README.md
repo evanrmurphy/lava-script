@@ -1,3 +1,5 @@
+Copyright 2011 Evan R. Murphy
+
 # LavaScript
 
 A lispy language that compiles into JavaScript.
@@ -5,7 +7,6 @@ A lispy language that compiles into JavaScript.
 ## Try LavaScript
 
 You can now [try LavaScript in your web-browser](http://rocketnia.kodingen.com/af/try-lava-script/). Many thanks to [Ross Angle](http://www.rocketnia.com/) (a.k.a. rocketnia) for implementing this!! He has also [made the source code available](https://gist.github.com/840809).
-
 
 ## Todo
 
@@ -62,4 +63,3 @@ And the JavaScript output would be:
     });
 
 It depends on jQuery and a hypothetical HTML library that can generate strings like `'<tag attr1="val1">body</tag>'` from calls like `(<tag> attr1 'val1 "body")`.
-

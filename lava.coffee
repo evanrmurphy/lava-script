@@ -1,3 +1,5 @@
+### Copyright 2011 Evan R. Murphy
+###
 ### About this code:
 ### - No code depends on code below it (see
 ###   http://awwx.posterous.com/how-to-future-proof-your-code
@@ -11,6 +13,7 @@
 ###    3) Compiler
 ###    4) Interface
 ###
+
 
 ## Preliminary
 

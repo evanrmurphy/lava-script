@@ -29,6 +29,7 @@ LavaScript is incomplete. It still needs:
   thread](http://arclanguage.org/item?id=13740)
 - pretty-printed output
 - idiomatic output (semi-colon instead of comma)
+- file extension: `.lava`, `.ls`, `.lavascript`?
 
 ## LavaScript Challenge
 

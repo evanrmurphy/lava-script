@@ -1,0 +1,108 @@
+;;; Copyright 2011 Evan R. Murphy
+;;;
+;;; Port of underscore.coffee (which is in turn a port of underscore.js)
+;;;
+
+(= root this)
+
+(= previousUnderscore root._)
+
+(= breaker (if (is (typeof StopIteration) "undefined")
+                "__break__"
+                StopIteration)
+
+(def escapeRegExp (string)
+  (string.replace /([.*+?^${}()|[\]\/\\])/g "\\$1")))
+
+(= ArrayProto Array.prototype)
+(= ObjProto   Object.prototype)
+
+(= slice                 ArrayProto.slice)
+(= unshift               ArrayProto.unshift)
+(= toString              ObjProto.toString)
+(= hasOwnProperty        ObjProto.hasOwnProperty)
+(= propertyIsEnumerable  ObjProto.propertyIsEnumerable)
+
+(= nativeForEach       ArrayProto.forEach)
+(= nativeMap           ArrayProto.map)
+(= nativeReduce        ArrayProto.reduce)
+(= nativeReduceRight   ArrayProto.reduceRight)
+(= nativeFilter        ArrayProto.filter)
+(= nativeEvery         ArrayProto.every)
+(= nativeSome          ArrayProto.some)
+(= nativeIndexOf       ArrayProto.indexOf)
+(= nativeLastIndexOf   ArrayProto.lastIndexOf)
+(= nativeIsArray       Array.isArray)
+(= nativeKeys          Object.keys)
+
+(def _ (obj) (new (wrapper obj)))
+
+(if (!= (typeof exports) "undefined") (= exports._ _))
+
+(= root._ _)
+
+(= _.VERSION "1.1.0")
+
+(def _.each (obj iterator context)
+  (try ...))
+
+(def _.map (obj iterator context)
+  (var results)
+  (if (and nativeMap (is obj.map nativeMap))
+    (return (obj.map iterator context)))
+  (= results [])
+  (_.each obj (fn (value index list)
+    (results.push (iterator.call context value index list))))
+  results)
+
+(def _.reduce (obj iterator memo context)
+  (when (and nativeReduce (is obj.reduce nativeReduce))
+    (if context (= iterator (_.bind iterator context)))
+    (return (obj.reduce iterator memo)))
+  (_.each obj (fn (value index list)
+    (= memo (iterator.call context memo value index list))))
+  memo)
+
+(def _.reduceRight (obj iterator memo context)
+  (var reversed)
+  (when (and nativeReduceRight (is obj.reduceRight nativeReduceRight))
+    (if context (= iterator (_.bind iterator context)))
+    (return (obj.reduceRight iterator memo)))
+  (= reversed (.reverse (_.clone (_.toArray obj))))
+  (_.reduce reversed iterator memo context))
+
+(def _.detect (obj iterator context)
+  (var= result null)
+  (_.each obj (fn (value index list)
+    (when (iterator.call context value index list)
+      (= result value)
+      (_.breakLoop))))
+  result)
+
+(def _.filter (obj iterator context)
+  (var results)
+  (if (and nativeFilter (is obj.filter nativeFilter))
+    (return (obj.filter iterator context)))
+  (= results [])
+  (_.each obj (fn (value index list)
+    (if (iterator.call context value index list)
+      (results.push value))))
+  results)
+
+(def _.reject (obj iterator context)
+  (var= results [])
+  (_.each obj (fn (value index list)
+    (if (not (iterator.call context value index list))
+      (results.push value))))
+  results)
+
+(def _.every (obj iterator context)
+  (var iterator result)
+  (||= iterator _.identity)
+  (if (and nativeEvery (is obj.every nativeEvery))
+    (return (obj.every iterator context)))
+  (= result true)
+  (_.each obj (fn (value index list)
+    (unless (= result (and result (iterator.call context value index list)))
+      (_.breakLoop))))
+  result)

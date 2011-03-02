@@ -40,7 +40,7 @@ We're not there yet, but this could be LavaScript's entry into the [Arc Challeng
         (+ (<input>)
            (<button> "submit")))
       (.click ($ 'button) (fn ()
-        (= said (.val ($ 'input)))
+        (= said (.val ($ 'input) ()))
         (.html ($ 'body)
           (<a> href '#))
         (.click ($ 'a) (fn ()

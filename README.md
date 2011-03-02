@@ -64,3 +64,30 @@ And the JavaScript output would be:
     });
 
 It depends on jQuery and a hypothetical HTML library that can generate strings like `'<tag attr1="val1">body</tag>'` from calls like `(<tag> attr1 'val1 "body")`.
+
+With a few macros to abstract away common jQuery patterns and a softer HTML lib, you could write this much more concisely. The macros:
+
+    (mac ready body
+      `($ (fn () ,@body)))
+    
+    (mac trigger (selector event args...)
+      `(. ($ ,selector) (event ,@args)))
+    
+    (mac draw body
+      `(trigger 'body html 
+        (+ ,@body)))
+    
+    (mac handler (selector event body...)
+      `(trigger ,selector ,event (fn ()
+        ,@body)))
+
+And the rewrite:
+
+    (ready
+      (draw (input)
+            (button "submit"))
+      (handler 'button click
+        (= said (trigger 'input val))
+        (draw (a href '# "click here"))
+        (handler 'a click
+          (draw "you said: " said)))))))

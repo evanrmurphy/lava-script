@@ -33,7 +33,7 @@ LavaScript is incomplete. It still needs:
 
 ## LavaScript Challenge
 
-We're not there yet, but this would be LavaScript's entry into the [Arc Challenge](http://arclanguage.org/item?id=722), once the language gets sufficiently developed:
+We're not there yet, but this could be LavaScript's entry into the [Arc Challenge](http://arclanguage.org/item?id=722), once the language gets sufficiently developed:
 
     ($ (fn ()
       (.html ($ 'body)
@@ -65,13 +65,13 @@ And the JavaScript output would be:
 
 It depends on jQuery and a hypothetical HTML library that can generate strings like `'<tag attr1="val1">body</tag>'` from calls like `(<tag> attr1 'val1 "body")`.
 
-With a few macros to abstract away common jQuery patterns and a softer HTML lib, you could write this much more concisely. The macros:
+Now, with a few macros to abstract away common jQuery patterns and a softer HTML lib, you could rewrite this more concisely. The macros:
 
     (mac ready body
       `($ (fn () ,@body)))
     
     (mac trigger (selector event args...)
-      `(. ($ ,selector) (event ,@args)))
+      `(. ($ ,selector) (,event ,@args)))
     
     (mac draw body
       `(trigger 'body html 

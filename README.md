@@ -17,10 +17,10 @@ LavaScript is incomplete. It still needs:
 - npm packaging
 - syntactic conveniences
 
-        [1 2 3]     [1,2,3]
-        {a 1 b 2}   {a:1,b:2}
-        (.k h)      h.k
-        ([k] h)     h[k]
+        [1 2 3]             [1,2,3]
+        {a 1 b 2}           {a:1,b:2}
+        h.k  and (.k h)     h.k
+        h[k] and ([k] h)    h[k]
 
 - access to other features of javascript,
   like loops and try/catch

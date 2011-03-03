@@ -70,14 +70,14 @@ Now, with a few macros to abstract away common jQuery patterns and a softer HTML
     (mac ready body
       `($ (fn () ,@body)))
     
-    (mac trigger (selector event ... args)
+    (mac trigger (selector event args...)
       `(. ($ ,selector) (,event ,@args)))
     
     (mac draw body
       `(trigger 'body html 
         (+ ,@body)))
     
-    (mac handler (selector event ... body)
+    (mac handler (selector event body...)
       `(trigger ,selector ,event (fn ()
         ,@body)))
 

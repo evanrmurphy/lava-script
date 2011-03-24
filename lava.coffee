@@ -17,7 +17,7 @@
 
 ## Preliminary
 
-_ = require('underscore')
+_ = require 'underscore'
 
 isEqual = _.isEqual
 

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <title>Try LavaScript</title>
+  <!--
+    Copyright 2011 Ross Angle (rocketnia). This file is released under
+    the Perl Foundation's Artistic License 2.0.
+    
+    Not covered by the license are Underscore, jQuery, jQuery-console,
+    and LavaScript, which are hotlinked. The point of the hotlinking
+    is to fit this all in one file and to automatically use the most
+    current version of LavaScript from the GitHub repo.
+    
+    LavaScript belongs to evanrmurphy.
+  -->
+  <script src=
+    "http://documentcloud.github.com/underscore/underscore-min.js">
+  </script>
+  <script src=
+    "https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
+  </script>
+  <script src=
+    "https://rawgit.com/chrisdone/jquery-console/master/jquery.console.js">
+  </script>
+  <script>
+    // Spoof some things just to use LavaScript client-side.
+    function require() { return _; }
+    process = {};
+    // The last part of LavaScript will try to actually use
+    // process.stdin, and it'll fail, but we can still run other
+    // JavaScript code.
+  </script>
+  <script src=
+    "https://github.com/evanrmurphy/lava-script/raw/master/lava.js">
+  </script>
+  <script>
+    var that, thaterror, thatexpr, thisexpr;
+    var oops = "Got your back!"
+    
+    $( document ).ready( function() {
+      
+      var thisexpr;
+      
+      // This is modified from <http://weblogs.java.net/blog/driscoll/
+      // archive/2009/09/08/eval-javascript-global-context>.
+      var globalEvalThat = function globalEvalThat() {
+        var statement = "that = (" + thisexpr + ");";
+        if ( window.execScript ) window.execScript( statement );
+        (function() { window.eval.call( window, statement ); })();
+      };
+      
+      var console = $( '#repl' ).console( {
+        autofocus: true,
+        promptHistory: true,
+        welcomeMessage:
+          'Welcome to LavaScript. If you enter an invalid ' +
+          'expression and get stuck, finish it with "#oops".',
+        promptLabel: '> ',
+        continuedPromptLabel: '  ',
+        commandHandle: function( command, prn ) {
+          
+          if ( command.match( /#oops\s*$/ ) )
+            command = 'oops';
+          
+          var success = false;
+          try { thisexpr = lava( command ); success = true; }
+          catch ( e ) {}
+          
+          // NOTE: This assignment-in-if is intentional!
+          if ( console.continuedPrompt = !success )
+            return '';
+          
+          success = false;
+          try { globalEvalThat(); success = true; }
+          catch ( e ) { thaterror = e; }
+          thatexpr = thisexpr;
+          return '' + thatexpr + '\n' +
+            (success ? '=> ' + that : 'Error: ' + thaterror);
+        }
+      } );
+      
+      $( '.jquery-console-welcome' ).html(
+        'Welcome to LavaScript. If you enter an invalid ' +
+        'expression and get stuck, finish it with <code>#oops</code>.'
+      );
+    } );
+  </script>
+  <style>
+    html { height: 100%; }
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #422;
+      color: #FFD099;
+      height: 100%;
+    }
+    code { background-color: #FFD099; color: #422; }
+    #repl {
+      height: 100%;
+    }
+    #repl .jquery-console-inner {
+      font-family: monospace;
+      font-size: bigger;
+      height: 100%;
+      position: relative;
+      overflow: auto;
+    }
+    #repl .jquery-console-inner > * { margin: -4px 4px 4px 4px; }
+    #repl .jquery-console-message {
+      background-color: #622;
+      color: #FFD099;
+    }
+    #repl .jquery-console-welcome {
+      margin-top: 4px;
+      background-color: #422;
+      color: #FFD099;
+    }
+    #repl .jquery-console-focus .jquery-console-cursor {
+      background-color: #FFD099;
+      color: #422;
+    }
+  </style>
+</head>
+<body id="repl"></body>
+</html>
